@@ -35,6 +35,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html { scroll-behavior: smooth; scroll-padding-top: 70px; }
   body {
     margin: 0;
@@ -291,6 +292,36 @@
   .adults p { margin: 0; font-size: 1.1rem; }
   .adults .ban { position: absolute; right: -18px; bottom: -18px; width: 140px; height: 140px; opacity: .18; }
 
+  /* MIKOŁAJKI */
+  .santa { display: grid; gap: 22px; grid-template-columns: 1fr; align-items: stretch; }
+  @media (min-width: 900px) { .santa { grid-template-columns: 1fr 1.1fr; } }
+  .rules { border: 1px solid var(--line); border-radius: var(--r); padding: 26px; display: grid; gap: 18px; align-content: start; background: var(--panel); min-width: 0; }
+  .budget { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .budget b { font-family: var(--f-display); font-weight: 900; font-size: clamp(3rem, 10vw, 4.4rem); line-height: .9; color: var(--gold-2); }
+  .budget span { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--mist); }
+  .rules ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .rules li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; color: var(--snow); }
+  .rules li::before { content: "✦"; color: var(--red); }
+  .vault { position: relative; border-radius: var(--r); border: 1.5px solid var(--gold); background: radial-gradient(100% 80% at 0% 0%, rgba(216, 66, 59, .2), transparent 60%), linear-gradient(165deg, #1a2550, #0d1530); padding: 28px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+  .vault h3 { font-size: 2rem; color: var(--gold-2); }
+  .vault p { margin: 0; color: #c3cbe4; }
+  .vault form { display: grid; gap: 12px; }
+  .field { display: grid; gap: 6px; }
+  .field label { font-family: var(--f-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+  .field input { font: inherit; font-size: 1.05rem; color: var(--snow); background: rgba(10, 17, 36, .6); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; width: 100%; }
+  .field input:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
+  .go { font: inherit; font-weight: 700; font-size: 1rem; letter-spacing: .5px; color: var(--ink); background: var(--gold); border: 0; border-radius: 999px; padding: 13px 22px; cursor: pointer; justify-self: start; transition: background .15s, transform .15s; }
+  .go:hover { background: var(--gold-2); transform: translateY(-1px); }
+  .go:disabled { opacity: .6; cursor: wait; }
+  .msg { min-height: 1.4em; font-size: .95rem; color: var(--red); margin: 0; }
+  .reveal { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 18px 8px 6px; }
+  .reveal .who { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--mist); }
+  .reveal .name { font-family: var(--f-display); font-weight: 900; font-size: clamp(3.4rem, 13vw, 5.4rem); line-height: .9; text-transform: uppercase; color: var(--gold-2); animation: pop .7s cubic-bezier(.2, 1.6, .4, 1) both; }
+  .reveal .gift-big { width: 74px; height: 74px; color: var(--red); animation: pop .5s ease-out both; }
+  .reveal .hint { font-size: .9rem; color: var(--mist); max-width: 34ch; }
+  .reveal .ghost { font: inherit; background: none; border: 1px solid var(--line); color: var(--snow); border-radius: 999px; padding: 9px 18px; cursor: pointer; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
   footer { border-top: 1px solid var(--line); }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 30px; font-family: var(--f-mono); font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); }
 </style>
@@ -316,6 +347,7 @@
       <a href="#konkurs">Konkurs</a>
       <a href="#ekipa">Ekipa</a>
       <a href="#koszt">Koszt</a>
+      <a href="#mikolajki">Mikołajki</a>
     </nav>
   </div>
 </header>
@@ -590,6 +622,49 @@
       </div>
     </div>
   </section>
+
+  <div class="folk" aria-hidden="true"></div>
+
+  <!-- MIKOŁAJKI -->
+  <section class="sec sec--alt" id="mikolajki">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Losowanie prezentów</p>
+        <h2>Mikołajki</h2>
+        <p class="lede">Losowanie już się odbyło. Każdy kupuje prezent dokładnie jednej osobie i nikt nie wylosował siebie. Zaloguj się, żeby zobaczyć, kto przypadł Tobie.</p>
+      </div>
+      <div class="santa">
+        <div class="rules">
+          <div class="budget"><b>50 zł</b><span>Maksymalny budżet</span></div>
+          <ul>
+            <li>Login i hasło dostajesz prywatnie na PV.</li>
+            <li>Widzisz tylko swoją osobę. Nikt inny nie ma do niej dostępu.</li>
+            <li>Nie zdradzaj nikomu, kogo wylosowałeś.</li>
+            <li>12 uczestników: Nadia, Zuzia, Mateusz, Marcel, Rafał, Ksawery, Oliwier, Ignacy, Jacek, Gadom, Szymon, Maks.</li>
+          </ul>
+        </div>
+
+        <div class="vault" id="vault">
+          <div id="santa-login">
+            <form id="santa-form" autocomplete="off">
+              <h3>Sprawdź swoje losowanie</h3>
+              <div class="field"><label for="s-login">Login</label><input id="s-login" name="login" autocapitalize="none" spellcheck="false" required></div>
+              <div class="field"><label for="s-pass">Hasło</label><input id="s-pass" name="pass" type="password" autocapitalize="none" spellcheck="false" required></div>
+              <button class="go" id="s-go" type="submit">Pokaż, kogo wylosowałem</button>
+              <p class="msg" id="s-msg" role="alert"></p>
+            </form>
+          </div>
+          <div class="reveal" id="santa-result" hidden>
+            <svg class="gift-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="4" rx="1"/><path d="M5 13v8h14v-8M12 9v12"/><path d="M12 9c-2-4-6-5-6-2s4 2 6 2Zm0 0c2-4 6-5 6-2s-4 2-6 2Z"/></svg>
+            <span class="who">Kupujesz prezent dla</span>
+            <div class="name" id="s-name"></div>
+            <p class="hint">Budżet do 50 zł. Zachowaj to dla siebie.</p>
+            <button class="ghost" id="s-out" type="button">Ukryj i wyloguj</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div class="folk" aria-hidden="true"></div>
@@ -731,6 +806,45 @@
     c2.fillStyle = "#2a170b"; c2.fillRect(cx - win * 0.4, base - bh * 0.62, win * 0.8, bh * 0.62);
   }
   cabin(); addEventListener("resize", cabin);
+})();
+
+// Mikołajki: każdy wynik zaszyfrowany osobno (PBKDF2 + AES-GCM), klucz = login + hasło
+(() => {
+  const DATA = {"iter":200000,"users":{"nadia":{"s":"DQJ5W0VEf09Z2m2bdVsTWA==","i":"Qa0u/AKJU+ZOH8dq","c":"AzIyni5hzhWUyfnKKIRcnhl4aFdegw=="},"zuzia":{"s":"UG2IQZWPJv7mjdaDZBdl3g==","i":"D8n0HJhf+tVXSGZQ","c":"ktPRlic/NDQkKshzaZbCoNOaUcH9"},"mateusz":{"s":"6kcsf9EmO+0yX3zUEsDFbw==","i":"blHR7NZrN/X5zEU1","c":"/l6tKiGM+/d0LmtA3i/2RQN4a8GP"},"marcel":{"s":"CPcZAKS4p9JC6jFrtl0cIw==","i":"7OeoQI3N21jU2yca","c":"XRVZ2pAMZyt5ULZAeWwX5yv0yiL8vP4="},"rafal":{"s":"LR0rhEQduTRocOvc1Ndyxw==","i":"gMMHNY194WCjqhze","c":"PyGSC3YvkzQ0Bzv2GVr5eEv1gZBoWw=="},"ksawery":{"s":"BbGe0B7mvSF4uJIz32pn/A==","i":"aDJEuYew6U+TU2b5","c":"5WW6tEn45IrrLt+CmwpcDPjKTsYi"},"oliwier":{"s":"1AZOKc1LTYbrWfiaEgKTag==","i":"uGDkMl7qL4FycdOK","c":"Jbx6h8xLvJD9bEL/QBVfVgcTxK7JtA=="},"ignacy":{"s":"9WLGvLxf96KaIkvG+iaivg==","i":"LMOUPujLkCBlYSlI","c":"c4hEanVXSl4QsyTcYhhT0yMp1hCE"},"jacek":{"s":"OkYM+TbDYB6YC0SD3rkxJA==","i":"RsTOHXBVCVZYPref","c":"41N9kVcOKIYU4/n7YS/ubwm23N+sww=="},"gadom":{"s":"1LpmnALnSNymNlgZ77+JEQ==","i":"+KC9BEOMfp/0RrFw","c":"/cP61d12z9oPUzPaasifPJRhRgo="},"szymon":{"s":"sFEMhERIlvjNI5bMBJPozQ==","i":"1Hh3ltBuDZ2VBXB3","c":"0PMC39fVMcWz9U+4yugNUyBoUhckhZA="},"maks":{"s":"w39pwQYVLJnbgQ+WMqLT/Q==","i":"dHcD2agtzBb92+IT","c":"hlx/QU8lW/9TzgAUgA14Qh3elCUGP6U="}}};
+  const $ = id => document.getElementById(id);
+  const form = $("santa-form"), msg = $("s-msg"), btn = $("s-go");
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const norm = s => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+
+  async function open(login, pass) {
+    const rec = DATA && DATA.users[login];
+    if (!rec) throw new Error("login");
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(login + ":" + pass), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(rec.s), iterations: DATA.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(rec.i) }, key, b64(rec.c));
+    return new TextDecoder().decode(plain);
+  }
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    msg.textContent = "";
+    if (!window.crypto || !crypto.subtle) { msg.textContent = "Ta przeglądarka nie obsługuje odszyfrowania. Otwórz stronę w Chrome lub Safari."; return; }
+    btn.disabled = true; btn.textContent = "Sprawdzam…";
+    try {
+      const name = await open(norm($("s-login").value), $("s-pass").value.trim());
+      $("s-name").textContent = name;
+      $("santa-login").hidden = true; $("santa-result").hidden = false;
+    } catch (err) {
+      msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Sprawdź wielkość liter i spróbuj jeszcze raz.";
+    } finally {
+      btn.disabled = false; btn.textContent = "Pokaż, kogo wylosowałem";
+    }
+  });
+
+  $("s-out").addEventListener("click", () => {
+    $("s-name").textContent = ""; $("s-pass").value = ""; $("s-login").value = "";
+    $("santa-result").hidden = true; $("santa-login").hidden = false;
+  });
 })();
 </script>
 
