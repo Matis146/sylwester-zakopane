@@ -6,6 +6,14 @@
 <title>Sylwester w Zakopanem</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Wyjazd sylwestrowy do Zakopanego 28.12 – 02.01: wybór fury, nocleg, konkurs kulinarny, ekipa i koszty.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sylwester">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0a1124">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Anton&display=swap" rel="stylesheet">
@@ -302,6 +310,24 @@
   .rules ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
   .rules li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; color: var(--snow); }
   .rules li::before { content: "✦"; color: var(--red); }
+  /* Bramka logowania na cały ekran */
+  body.locked { overflow: hidden; }
+  .gate {
+    position: fixed; inset: 0; z-index: 100; overflow-y: auto;
+    background: radial-gradient(120% 70% at 50% 110%, #2b3f80 0%, transparent 60%), linear-gradient(180deg, #060b1a 0%, var(--night) 100%);
+    padding-top: max(24px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; place-items: center;
+  }
+  .gate-inner { width: 100%; max-width: 460px; display: grid; gap: 24px; }
+  .gate-brand { display: flex; align-items: center; gap: 16px; }
+  .gate-brand svg { width: 52px; height: 62px; flex: none; }
+  .gate-title { font-size: clamp(2.4rem, 11vw, 3.4rem); }
+  .gate-title span { color: var(--gold); }
+  .gate .vault { box-shadow: 0 30px 70px rgba(0, 0, 0, .5); }
+
   .vault { position: relative; border-radius: var(--r); border: 1.5px solid var(--gold); background: radial-gradient(100% 80% at 0% 0%, rgba(216, 66, 59, .2), transparent 60%), linear-gradient(165deg, #1a2550, #0d1530); padding: 28px; display: grid; gap: 16px; align-content: start; min-width: 0; }
   .vault h3 { font-size: 2rem; color: var(--gold-2); }
   .vault p { margin: 0; color: #c3cbe4; }
@@ -338,6 +364,19 @@
     </symbol>
   </defs>
 </svg>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Logowanie">
+  <div class="gate-inner">
+    <div class="gate-brand">
+      <svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg>
+      <div>
+        <p class="kicker" style="margin:0 0 6px">Tylko dla ekipy</p>
+        <h1 class="gate-title">Sylwester <span>Zakopane</span></h1>
+      </div>
+    </div>
+    <div id="gate-slot"></div>
+  </div>
+</div>
 
 <header class="bar">
   <div class="wrap">
@@ -661,6 +700,7 @@
             <div class="name" id="s-name"></div>
             <video class="clip" id="s-video" controls playsinline preload="metadata" hidden></video>
             <p class="hint">Budżet do 50 zł. Zachowaj to dla siebie.</p>
+            <button class="go" id="s-enter" type="button" hidden>Wejdź na stronę →</button>
             <button class="ghost" id="s-out" type="button">Ukryj i wyloguj</button>
           </div>
         </div>
@@ -859,6 +899,7 @@
         video.removeAttribute("src"); video.hidden = true;
       }
       $("santa-login").hidden = true; $("santa-result").hidden = false;
+      $("s-enter").hidden = !gateOpen;
     } catch (err) {
       msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Sprawdź wielkość liter i spróbuj jeszcze raz.";
     } finally {
@@ -870,6 +911,30 @@
     $("s-name").textContent = ""; $("s-pass").value = ""; $("s-login").value = "";
     const video = $("s-video"); video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true;
     $("santa-result").hidden = true; $("santa-login").hidden = false;
+  });
+
+  // Bramka: na wejściu logowanie na cały ekran, bez możliwości pominięcia.
+  // Po zalogowaniu (w tej karcie przeglądarki) strona jest już odblokowana.
+  const gate = $("gate"), vault = $("vault"), home = vault.parentNode;
+  let gateOpen = false;
+  let unlocked = false;
+  try { unlocked = sessionStorage.getItem("gate-ok") === "1"; } catch (e) {}
+  if (unlocked) {
+    gate.remove();
+  } else {
+    gateOpen = true;
+    $("gate-slot").appendChild(vault);
+    document.body.classList.add("locked");
+  }
+  $("s-enter").addEventListener("click", () => {
+    gateOpen = false;
+    $("s-enter").hidden = true;
+    $("s-video").pause();
+    home.appendChild(vault);
+    gate.remove();
+    document.body.classList.remove("locked");
+    try { sessionStorage.setItem("gate-ok", "1"); } catch (e) {}
+    scrollTo(0, 0);
   });
 })();
 </script>
