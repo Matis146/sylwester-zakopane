@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sylwester w Zakopanem</title>
+<title>Granat Szerominek</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Wyjazd sylwestrowy do Zakopanego 28.12 – 02.01: wybór fury, nocleg, konkurs kulinarny, ekipa i koszty.">
+<meta name="description" content="Granat Szerominek: Gala Złotej Piłki i wyjazd sylwestrowy do Zakopanego.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Sylwester">
+<meta name="apple-mobile-web-app-title" content="Granat">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="theme-color" content="#0a1124">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -357,6 +357,69 @@
   .reveal .ghost { font: inherit; background: none; border: 1px solid var(--line); color: var(--snow); border-radius: 999px; padding: 9px 18px; cursor: pointer; }
   @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+  /* Zakładki w nagłówku */
+  .tabs { display: flex !important; align-items: center; gap: 6px; }
+  .tab-btn { text-decoration: none; font-family: var(--f-mono); font-size: .74rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); padding: 8px 12px; border-radius: 999px; border: 1px solid transparent; transition: color .15s, border-color .15s; }
+  .tab-btn:hover { color: var(--gold-2); }
+  .tab-btn[aria-current="page"] { color: var(--ink); background: var(--gold); }
+  .logout { font: inherit; font-family: var(--f-mono); font-size: .68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; cursor: pointer; margin-left: 4px; }
+  .logout:hover { color: var(--snow); }
+  @media (max-width: 520px) { .brand span { display: none; } .tab-btn { padding: 7px 10px; font-size: .68rem; letter-spacing: 1px; } }
+
+  /* ZŁOTA PIŁKA */
+  .zp-hero { position: relative; overflow: hidden; background: radial-gradient(90% 70% at 75% 40%, rgba(224, 185, 92, .22), transparent 60%), linear-gradient(180deg, #060b1a 0%, var(--night-2) 100%); }
+  .zp-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .zp-hero .wrap { position: relative; display: grid; gap: 32px; grid-template-columns: 1fr; align-items: center; padding-block: 64px 80px; }
+  @media (min-width: 860px) { .zp-hero .wrap { grid-template-columns: 1.3fr .7fr; padding-block: 96px 110px; } }
+  .zp-title { font-size: clamp(4.4rem, 17vw, 9.5rem); line-height: .82; }
+  .zp-title span { display: block; color: transparent; background: linear-gradient(180deg, #fff3c4, #e0b95c 55%, #a07a2c); -webkit-background-clip: text; background-clip: text; }
+  .ball { justify-self: center; width: min(260px, 60vw); aspect-ratio: 1; max-width: 100%; filter: drop-shadow(0 20px 50px rgba(224, 185, 92, .35)); animation: float 5s ease-in-out infinite; }
+  .ball svg { width: 100%; height: 100%; }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(4deg); } }
+
+  .honours { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .honours li { border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); padding: 22px; display: grid; gap: 4px; }
+  .honours .yr { font-family: var(--f-mono); font-size: .75rem; letter-spacing: 2px; color: var(--gold); }
+  .honours b { font-family: var(--f-display); font-weight: 900; font-size: 1.9rem; text-transform: uppercase; line-height: 1; }
+  .honours small { color: var(--mist); font-size: .9rem; }
+  .honours .next { border: 2px dashed var(--gold); background: transparent; }
+  .honours .next b { color: var(--gold-2); font-size: 2.6rem; }
+
+  .ballot { position: relative; z-index: 5; border: 1.5px solid var(--gold); border-radius: var(--r); background: color-mix(in srgb, var(--night) 92%, transparent); backdrop-filter: blur(10px); padding: 16px; display: grid; gap: 12px; margin-bottom: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); }
+  .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .slot { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+  .slot span { font-family: var(--f-mono); font-size: .66rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+  .slot b { font-family: var(--f-display); font-weight: 800; font-size: 1.25rem; text-transform: uppercase; line-height: 1.05; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .slot.on { border-color: var(--gold); background: rgba(224, 185, 92, .1); }
+  .ballot-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ghost { font: inherit; background: none; border: 1px solid var(--line); color: var(--snow); border-radius: 999px; padding: 11px 18px; cursor: pointer; }
+  .confirm { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
+  .confirm p { margin: 0; }
+  .ballot .msg { margin: 0; min-height: 0; color: var(--mist); }
+  @media (min-width: 760px) { .ballot { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 68px); } }
+  .ballot .msg.ok { color: var(--gold-2); }
+  .voted { border: 1.5px solid var(--gold); border-radius: var(--r); padding: 22px 24px; margin-bottom: 28px; background: rgba(224, 185, 92, .08); }
+  .voted b { font-family: var(--f-display); font-weight: 900; font-size: 2rem; text-transform: uppercase; color: var(--gold-2); }
+  .voted p { margin: 4px 0 0; color: var(--mist); }
+
+  .players { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .player { border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); padding: 22px; display: grid; gap: 12px; align-content: start; transition: border-color .15s; min-width: 0; }
+  .player.picked { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  .player.self { opacity: .55; }
+  .p-top { display: flex; align-items: baseline; gap: 12px; }
+  .p-no { font-family: var(--f-mono); font-size: .8rem; color: var(--gold); font-weight: 700; }
+  .p-name { font-family: var(--f-display); font-weight: 900; font-size: 1.9rem; text-transform: uppercase; line-height: .95; }
+  .p-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .p-tags span { font-family: var(--f-mono); font-size: .64rem; letter-spacing: 1.2px; text-transform: uppercase; border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; color: var(--mist); }
+  .p-tags span.hot { border-color: var(--red); color: var(--snow); }
+  .p-bio { margin: 0; color: #c3cbe4; font-size: .97rem; }
+  .p-pts { display: flex; gap: 8px; }
+  .p-pts button { font: inherit; font-family: var(--f-display); font-weight: 900; font-size: 1.15rem; min-width: 52px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--night); color: var(--snow); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .p-pts button:hover:not(:disabled) { border-color: var(--gold); }
+  .p-pts button[aria-pressed="true"] { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .p-pts button:disabled { cursor: not-allowed; opacity: .5; }
+  .p-self { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); }
+
   footer { border-top: 1px solid var(--line); }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 30px; font-family: var(--f-mono); font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); }
 </style>
@@ -379,40 +442,108 @@
       <svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg>
       <div>
         <p class="kicker" style="margin:0 0 6px">Tylko dla ekipy</p>
-        <h1 class="gate-title">Sylwester <span>Zakopane</span></h1>
+        <h1 class="gate-title">Granat <span>Szerominek</span></h1>
       </div>
     </div>
-    <div id="gate-slot"></div>
-    <div class="wait" id="gate-wait" hidden>
-      <p class="kicker" style="margin:0">Zalogowano</p>
-      <h2 class="wait-title">Odsłonięcie za</h2>
-      <div class="wait-cd" aria-live="off">
-        <div><b id="w-d">--</b><small>dni</small></div>
-        <div><b id="w-h">--</b><small>godz</small></div>
-        <div><b id="w-m">--</b><small>min</small></div>
-        <div><b id="w-s">--</b><small>sek</small></div>
-      </div>
-      <p class="wait-when">30 października, godz. 20:00</p>
-      <p class="wait-note">Zostaw tę stronę otwartą albo wróć później i zaloguj się jeszcze raz.</p>
-    </div>
+    <form class="vault" id="g-form" autocomplete="off">
+      <h3>Zaloguj się</h3>
+      <div class="field"><label for="g-login">Login</label><input id="g-login" name="login" autocapitalize="none" spellcheck="false" required></div>
+      <div class="field"><label for="g-pass">Hasło</label><input id="g-pass" name="pass" type="password" autocapitalize="none" spellcheck="false" required></div>
+      <button class="go" id="g-go" type="submit">Wejdź</button>
+      <p class="msg" id="g-msg" role="alert"></p>
+    </form>
   </div>
 </div>
 
 <header class="bar">
   <div class="wrap">
-    <a class="brand" href="#top"><svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg><span>Sylwester <b>Zakopane</b></span></a>
-    <nav aria-label="Sekcje">
-      <a href="#fura">Fura</a>
-      <a href="#baza">Baza</a>
-      <a href="#konkurs">Konkurs</a>
-      <a href="#ekipa">Ekipa</a>
-      <a href="#koszt">Koszt</a>
-      <a href="#mikolajki">Mikołajki</a>
+    <a class="brand" href="#zlota-pilka"><svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg><span>Granat <b>Szerominek</b></span></a>
+    <nav class="tabs" aria-label="Zakładki">
+      <a class="tab-btn" href="#zlota-pilka" data-tab="zp">Złota Piłka</a>
+      <a class="tab-btn" href="#sylwester" data-tab="sylwester" id="tab-btn-sylwester">Sylwester</a>
+      <button class="logout" id="logout" type="button" title="Wyloguj">Wyloguj</button>
     </nav>
   </div>
 </header>
 
 <main id="top">
+<div class="tab" id="tab-zp">
+  <section class="zp-hero">
+    <canvas id="zp-fx" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="zp-hero-text">
+        <p class="kicker">Gala wraca po 3 latach</p>
+        <h1 class="zp-title">Złota <span>Piłka</span></h1>
+        <p class="lede">Nagroda dla najlepszego piłkarza Granatu Szerominek za lata 2023–2026. To cały złoty okres klubu: seria sparingów i pamiętna, legendarna liga osiedlowa.</p>
+      </div>
+      <div class="ball" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <radialGradient id="gold" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#e0b95c"/><stop offset="1" stop-color="#7a5a1c"/></radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="92" fill="url(#gold)"/>
+          <path d="M100 52 132 75 120 113H80L68 75Z" fill="#5c4314" opacity=".55"/>
+          <path d="M100 52V18M132 75l32-12M120 113l20 30M80 113l-20 30M68 75 36 63" stroke="#5c4314" stroke-width="5" opacity=".45" fill="none"/>
+          <circle cx="100" cy="100" r="92" fill="none" stroke="#f3d58e" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <div class="folk" aria-hidden="true"></div>
+
+  <section class="sec" id="historia">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Historia</p>
+        <h2>Dotychczasowi zwycięzcy</h2>
+      </div>
+      <ol class="honours">
+        <li><span class="yr">2021</span><b>Ksawery Bandurski</b><small>Pierwsza Złota Piłka w historii klubu</small></li>
+        <li><span class="yr">2022/23</span><b>Ksawery Bandurski</b><small>Obrona tytułu. Jedyny zwycięzca w historii</small></li>
+        <li class="next"><span class="yr">2023–26</span><b>?</b><small>Rozstrzygnie się na gali</small></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec sec--alt" id="glosowanie">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Tajne głosowanie</p>
+        <h2>Oddaj głos</h2>
+        <p class="lede">Rozdajesz trzy głosy: 5, 3 i 1 punkt, każdy na innego piłkarza. Na siebie głosować nie możesz. Głos oddajesz raz i nie da się go zmienić. Nikt nie widzi, na kogo głosowałeś, a wyniki poznamy na gali.</p>
+      </div>
+
+      <div class="ballot" id="ballot">
+        <div class="slots" id="slots">
+          <div class="slot" data-pts="5"><span>5 pkt</span><b>—</b></div>
+          <div class="slot" data-pts="3"><span>3 pkt</span><b>—</b></div>
+          <div class="slot" data-pts="1"><span>1 pkt</span><b>—</b></div>
+        </div>
+        <div class="ballot-actions">
+          <button class="go" id="vote-go" type="button" disabled>Oddaj głos</button>
+          <button class="ghost" id="vote-clear" type="button">Wyczyść</button>
+        </div>
+        <div class="confirm" id="vote-confirm" hidden>
+          <p><b>Na pewno?</b> Głosu nie da się później zmienić.</p>
+          <div class="ballot-actions">
+            <button class="go" id="vote-yes" type="button">Tak, wysyłam</button>
+            <button class="ghost" id="vote-no" type="button">Wróć</button>
+          </div>
+        </div>
+        <p class="msg" id="vote-msg" role="status"></p>
+      </div>
+      <div class="voted" id="voted" hidden>
+        <b>Głos oddany ✓</b>
+        <p>Dziękujemy. Wyniki poznamy na gali Złotej Piłki.</p>
+      </div>
+
+      <div class="players" id="players"></div>
+    </div>
+  </section>
+</div>
+
+<div class="tab" id="tab-sylwester" hidden>
   <!-- HERO -->
   <section class="hero">
     <canvas id="sky" aria-hidden="true"></canvas>
@@ -691,7 +822,7 @@
       <div class="sec-head">
         <p class="kicker">Losowanie prezentów</p>
         <h2>Mikołajki</h2>
-        <p class="lede">Losowanie już się odbyło. Każdy kupuje prezent dokładnie jednej osobie i nikt nie wylosował siebie. Zaloguj się, żeby zobaczyć, kto przypadł Tobie.</p>
+        <p class="lede">Losowanie już się odbyło. Każdy kupuje prezent dokładnie jednej osobie i nikt nie wylosował siebie. Twoja osoba odsłoni się 30 października o 20:00.</p>
       </div>
       <div class="santa">
         <div class="rules">
@@ -705,35 +836,36 @@
         </div>
 
         <div class="vault" id="vault">
-          <div id="santa-login">
-            <form id="santa-form" autocomplete="off">
-              <h3>Sprawdź swoje losowanie</h3>
-              <div class="field"><label for="s-login">Login</label><input id="s-login" name="login" autocapitalize="none" spellcheck="false" required></div>
-              <div class="field"><label for="s-pass">Hasło</label><input id="s-pass" name="pass" type="password" autocapitalize="none" spellcheck="false" required></div>
-              <button class="go" id="s-go" type="submit">Pokaż, kogo wylosowałem</button>
-              <p class="msg" id="s-msg" role="alert"></p>
-            </form>
+          <div class="wait" id="santa-wait" hidden>
+            <p class="kicker" style="margin:0">Twoje losowanie</p>
+            <h3 class="wait-title">Odsłonięcie za</h3>
+            <div class="wait-cd" aria-live="off">
+              <div><b id="w-d">--</b><small>dni</small></div>
+              <div><b id="w-h">--</b><small>godz</small></div>
+              <div><b id="w-m">--</b><small>min</small></div>
+              <div><b id="w-s">--</b><small>sek</small></div>
+            </div>
+            <p class="wait-when">30 października, godz. 20:00</p>
           </div>
           <div class="reveal" id="santa-result" hidden>
             <svg class="gift-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="4" rx="1"/><path d="M5 13v8h14v-8M12 9v12"/><path d="M12 9c-2-4-6-5-6-2s4 2 6 2Zm0 0c2-4 6-5 6-2s-4 2-6 2Z"/></svg>
             <span class="who">Kupujesz prezent dla osoby z filmiku</span>
-            <div class="name" id="s-name"></div>
+            <div class="name" id="s-name" hidden></div>
             <video class="clip" id="s-video" controls playsinline preload="metadata" hidden></video>
             <p class="hint">Budżet do 50 zł. Zachowaj to dla siebie.</p>
-            <button class="go" id="s-enter" type="button" hidden>Wejdź na stronę →</button>
-            <button class="ghost" id="s-out" type="button">Ukryj i wyloguj</button>
           </div>
         </div>
       </div>
     </div>
   </section>
+</div>
 </main>
 
 <div class="folk" aria-hidden="true"></div>
 <footer>
   <div class="wrap">
-    <span>Sylwester Zakopane · 28.12.2026 – 02.01.2027</span>
-    <span>Start: boisko Szerominek, 04:00</span>
+    <span>Granat Szerominek</span>
+    <span>Złota Piłka · Sylwester Zakopane</span>
   </div>
 </footer>
 
@@ -747,6 +879,7 @@
   const pad = n => String(n).padStart(2, "0");
   const el = id => document.getElementById(id);
   function tick() {
+    if (!el("cd-d")) return; // zakładka Sylwester usunięta dla konta bez dostępu
     let t = Math.max(0, target - Date.now());
     const d = Math.floor(t / 864e5); t %= 864e5;
     const h = Math.floor(t / 36e5); t %= 36e5;
@@ -870,7 +1003,7 @@
   cabin(); addEventListener("resize", cabin);
 })();
 
-// Mikołajki: każdy wynik zaszyfrowany osobno (PBKDF2 + AES-GCM), klucz = login + hasło
+// Aplikacja: logowanie, zakładki, Mikołajki i tajne głosowanie na Złotą Piłkę
 (() => {
   const DATA = {"iter":200000,"users":{"nadia":{"s":"eWchyCp/HSL538NVrjibsQ==","i":"VqLdBf9chihQWAdL","c":"b90xmiC9D93ae08wKkEmkP8HlUUE"},"zuzia":{"s":"zt7HCujsi4sZcq58BLV2gQ==","i":"2D07iJjSgm/t8ke/","c":"uEnmuGv3A1lDMVmQZww3DUOkan6G"},"mateusz":{"s":"quIP+UH+7Zow53KnnkL0fQ==","i":"TjusMiPOjqEHclHe","c":"lZUWBzcB9txeFPMkgPsSYvC2cGULtg=="},"marcel":{"s":"VPBIYwm7ezLpic24e/6HUw==","i":"/VdjX468c/L1xAcS","c":"UTIeu4MwdFT17UaEooiQv4Kd/5wJWOg="},"rafal":{"s":"iHmE21Oi76EEB/Dkim6lgQ==","i":"yphHf2dei3NsaNJb","c":"QhBLqfD4j9SULNZYgJPWYh3S4kHO"},"ksawery":{"s":"nu6P07zX/abchf1naMGipw==","i":"VZJ9gFEsQzMhlcsY","c":"QNETUMkxqubsiG7UKyjf8tJSX7ot5Q=="},"oliwier":{"s":"l9ivUg3zskIKytkkTxWHtg==","i":"F7Js2oUcZ87An/a1","c":"VzSt5PBiECv+mfL/WzG/ndlBqiZyCA=="},"ignacy":{"s":"Tdv/1r1ZXz7Zuq7PUBqIxw==","i":"4IrZvUT+j5L5oC73","c":"+B+H/Vj+6Zv1gJhKmMkEuj/BP1Lv0Q=="},"jacek":{"s":"QedFmklN02bMEN/cYbmoGg==","i":"dgYM4bPVg2p/SFn/","c":"+bmltib9q+Q+qFxiJJoOPEeCgQdx"},"gadom":{"s":"fx1VouBm56Pjbijdw4Shpw==","i":"Du3Ck99frTsxNcMv","c":"w8E+4YS8VMDvNU6qBF9Bv4CbfBrsSww="},"szymon":{"s":"T4Gk9GkTGLzOkcMYcpegyQ==","i":"IV1d8G+6/sKRt6KV","c":"/YTQkqgxQcynz01kUaKMddsUWCg="},"maks":{"s":"UaMMu8GTQHgSjFiWV0y4wQ==","i":"umegnMd5TffMjDTf","c":"UvGF4A1JKrJ3B0+3ptuIJa1+Pw7+Uoo="}}};
   // Filmik pokazywany osobie, która wylosowała daną osobę (klucz = wylosowane imię)
@@ -888,99 +1021,275 @@
     "Marcel": "filmy/marcel.mp4",
     "Rafał": "filmy/rafal.mp4"
   };
-  const $ = id => document.getElementById(id);
-  const form = $("santa-form"), msg = $("s-msg"), btn = $("s-go");
-  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-  const norm = s => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+  // Weryfikatory logowania (PBKDF2) i klucz publiczny do szyfrowania głosów
+  const AUTH = {"iter":100000,"users":{"nadia":{"s":"1l6qvjz8kSa1TgfdC9JvzQ==","h":"PZ1mfWb/pJ2NGgMwm9RrZLSzhW91tmW1jUWv2z6kLNA="},"zuzia":{"s":"7YHM8NFFQCRQPgGfyPCbww==","h":"qtvBSTXKayUQ9DtmpmlxDdRm00lz73Fhn1jnMFGIzLU="},"mateusz":{"s":"82mFK/SMIYAp+COvpIISiQ==","h":"mB3XQ0UuwWvOJBES+qhc4LedZNG9AggEueVlO0GFhJk="},"marcel":{"s":"FnuK4yor/MNMZtLGGumVOA==","h":"aIZGwSWOZgHFM+YlGii0MDqHweFTgtEdQH0KzRsVrLU="},"rafal":{"s":"kkzycMchRUYfxgAOGzHkPw==","h":"AHA24I1IK037LYdSlb3vF/gOpbV0BH1AmUQppieUrX4="},"ksawery":{"s":"Kt+ptoGGP5sUjiCAMCmCzg==","h":"iBTlRQ3LD5aF5qAevsiIxR6S4VFuu3ZhyurAg6/P2d8="},"oliwier":{"s":"P5cRtVmBr5I7IDtyARDj6A==","h":"kUxeIdCqucvCdePaSP+WrHQe7C1tgLfWVerpVL1mbUc="},"ignacy":{"s":"tPMSAt5s7m1ZNyz9BJ+0tQ==","h":"psrSbXcYBVS9PBuL9XrtIUsUEdsrGofqlzMLv7lV8N8="},"jacek":{"s":"vU+wnq6s8P+BkHBT+oj5PQ==","h":"q5g04sGQtBwfj+DnAKfKocvKUpKfOrmVyWRK8WeoV8w="},"gadom":{"s":"26QEYUf3YJjQNgYi7dwX3g==","h":"p+HE0cDmUWkt2oxaSDEa9MsMbjrJ1xWiEttkBfuQnx4="},"szymon":{"s":"Pc5t8e8mJzkxNWZV2FZc1g==","h":"PiUJEqAQFsJtuc/uhlSg7+LJwC5sxDinMnpJxsQa15I="},"maks":{"s":"ghqr2Ju5O+DzO6D/x0nAiw==","h":"PrXLMEol9szGKuwI14y8cZwYhetlNb+9bhwvIHH2aLM="},"nikodem":{"s":"nAOZTTdNB1TsFw3i/CSvVQ==","h":"u+s8xInOs1zm5dSdMWUkWujUv61RVBFVTdlcyJk4Luk="}},"pub":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAviuDhc46XXpa74OEN4sv1fN+3HxeB+bX2WFJD65rySzBLMZmCm01vw/Z2KZ9qv1iCyV9VoAeKW0q5sKw1fRfsto10DPjobEQiijXrtKQANDtAl4eO0rW6cDXoudNR/ZUiiJRiKuCqUXit57URqO5N/RLdhgvJv5NjD5BbQaYKt3WwQJiegxdfo/lVINE8wVHFCsP+hXZo7PTnm2RJn828XIAGPmNBc45ARH4fRZn+IinP4zuTkFCGzt2qnAzGpNVMVgvNX2k4j+ryl0i6/lEIf8m3J2PUzMitqxwJ3nMu4dNCt8+UiA+CDtheZiSq+zMLG4olssdT6LN8CT6IaUkgwIDAQAB"};
+  // Baza głosów (Firestore). Puste = głosowanie jeszcze nieaktywne.
+  const FB = { projectId: "granat-zlota-pilka-7299", apiKey: "AIzaSyCt3gklt5Vb5j-YmuBKUBb4oQqY7C1usnw" };
+  // Do tej godziny filmik z Mikołajek jest zakryty odliczaniem
+  const UNLOCK = new Date(2026, 9, 30, 20, 0, 0).getTime();
+  // Konta bez dostępu do zakładki Sylwester (i Mikołajek)
+  const ZP_ONLY = ["nikodem"];
 
-  async function open(login, pass) {
-    const rec = DATA && DATA.users[login];
+  const PLAYERS = [
+    { id: "ksawery", name: "Ksawery Bandurski", pos: "Obrońca → napastnik", tags: ["2× Złota Piłka", "Kontuzja"],
+      bio: "Legenda i jedyny zwycięzca Złotej Piłki w historii: w 2021 roku i ponownie w sezonie 2022/23. Zaczynał jako środkowy obrońca, z każdym sezonem przesuwał się wyżej, aż skończył w ataku. Od złotych lat minęło jednak sporo czasu, a od dwóch lat kontuzja całkowicie wyłączyła go z gry. Czy legenda wystarczy na trzecią piłkę?" },
+    { id: "marcel", name: "Marcel Nowicki", pos: "Pomocnik", tags: ["Najwięcej minut", "Baller"],
+      bio: "Zawodnik z największą liczbą minut w klubie i serce środka pola. W legendarnym meczu z Płonką Płońsk próbował wygrać go w pojedynkę. Kluczowy pomocnik, prawdziwy baller i człowiek, bez którego trudno wyobrazić sobie skład Granatu." },
+    { id: "jacek", name: "Jacek Malicki", pos: "Bramkarz", tags: ["Kontuzja barku", "Judasz"],
+      bio: "Bramkarz dobrych i złych momentów: jak dobrze świeci słońce, jest szansa, że coś obroni. Kontuzja barku zakończyła na dobre jego, delikatnie mówiąc, dość kiepską karierę. Do historii przejdzie jednak jako Judasz, który po sezonie zdradził Granat, żeby grać z dziećmi. Wolał to od gry z kolegami, a do tego od meczu z Płonką Płońsk." },
+    { id: "nikodem", name: "Nikodem Chyczewski", pos: "Pomocnik", tags: ["Ciężka praca", "Długie piłki"],
+      bio: "Zero talentu, sama ciężka praca i dokładnie dlatego tu jest. Najlepiej czuje się w środku pola, gdzie kluczowe są jego długie piłki. Dziś bez wątpienia, obok Marcela, najważniejszy piłkarz Granatu." },
+    { id: "mateusz", name: "Mateusz Rydzewski", pos: "Napastnik", tags: ["GOAT", "Twórca klubu"],
+      bio: "GOAT. Napastnik i najbardziej widowiskowy piłkarz w historii Granatu, a przy tym twórca klubu. Od samego początku strzelał kluczowe gole. Zdarzały się słabsze mecze, jak ten z Płonką, ale zawsze dawał charakter i walkę. Wkładał głowę tam, gdzie inni bali się wstawić nogę." },
+    { id: "oliwier", name: "Oliwier Frankowski", pos: "Skrzydłowy", tags: ["Super-zmiennik", "Wymówki"],
+      bio: "Nasz super-zmiennik. Wchodzi na skrzydło i zawsze daje jedną, ale za to przebojową minutę. Specjalista od nagłych chorób z kosmosu i wymówek, które pojawiają się dziwnie często tuż przed meczem." },
+    { id: "rafal", name: "Rafał Kil", pos: "Obrońca", tags: ["Forma w górę"],
+      bio: "Obrońca, który miał trudne początki, ale nigdy się nie poddał. Jego forma stale idzie w górę i z każdym meczem coraz trudniej go przejść. Najlepszy dowód na to, że w Granacie da się wyrosnąć na pewny punkt składu." },
+    { id: "maks", name: "Maks Stańczak", pos: "Zawodnik", tags: ["League of Legends"],
+      bio: "Prawdziwy talent, tyle że w League of Legends. Na boisku mówi niewiele i niezbyt wyraźnie, więc jego komunikacja z drużyną to temat na osobną analizę. Ale kto wie, może właśnie na gali padnie jego najgłośniejsze słowo." },
+    { id: "gadom", name: "Bartosz Gadomski", pos: "Obrońca", tags: ["Młody wilk", "Bez debiutu"],
+      bio: "Młody wilk, wciąż czekający na debiut. Można powiedzieć, że obrońca. Klub pokłada w nim bardzo duże nadzieje i wierzy, że jego czas dopiero nadchodzi." },
+    { id: "ignacy", name: "Ignacy Kacprzak", pos: "Bramkarz", tags: ["Future star", "Najmłodszy"],
+      bio: "Przyszłość Granatu i nasz najmłodszy piłkarz. Future star, który ma naprawić najgorszą pozycję w klubie, czyli bramkę. Po epoce Judasza wszyscy patrzą na niego z nadzieją." },
+    { id: "szymon", name: "Szymon Modrzejewski", pos: "Zawodnik", tags: ["Rekord nieobecności", "19:1"],
+      bio: "Rekordzista klubu w opuszczonych meczach, w większości bez powodu, bo po prostu mu się nie chciało. Zapisał się też w historii legendarnym meczem z Tomczykami (19:1), w którym został ośmieszony." }
+  ];
+
+  const $ = id => document.getElementById(id);
+  const enc = new TextEncoder();
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+  const hex = u => [...new Uint8Array(u)].map(b => b.toString(16).padStart(2, "0")).join("");
+  const norm = s => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+  let me = null; // { login, pass }
+
+  // ---------- Logowanie ----------
+  async function verify(login, pass) {
+    const rec = AUTH.users[login];
     if (!rec) throw new Error("login");
-    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(login + ":" + pass), "PBKDF2", false, ["deriveKey"]);
-    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(rec.s), iterations: DATA.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
-    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(rec.i) }, key, b64(rec.c));
-    return new TextDecoder().decode(plain);
+    const base = await crypto.subtle.importKey("raw", enc.encode(login + ":" + pass), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: b64(rec.s), iterations: AUTH.iter, hash: "SHA-256" }, base, 256);
+    if (toB64(bits) !== rec.h) throw new Error("pass");
   }
 
-  form.addEventListener("submit", async e => {
+  function save() { try { sessionStorage.setItem("me", JSON.stringify(me)); } catch (e) {} }
+  function load() { try { return JSON.parse(sessionStorage.getItem("me") || "null"); } catch (e) { return null; } }
+
+  async function enter() {
+    $("gate").hidden = true;
+    document.body.classList.remove("locked");
+    const zpOnly = ZP_ONLY.includes(me.login);
+    $("tab-btn-sylwester").hidden = zpOnly;
+    if (zpOnly) $("tab-sylwester").remove();
+    route();
+    renderPlayers();
+    checkVoted();
+    if (!zpOnly) santa();
+  }
+
+  $("g-form").addEventListener("submit", async e => {
     e.preventDefault();
+    const btn = $("g-go"), msg = $("g-msg");
     msg.textContent = "";
-    if (!window.crypto || !crypto.subtle) { msg.textContent = "Ta przeglądarka nie obsługuje odszyfrowania. Otwórz stronę w Chrome lub Safari."; return; }
+    if (!window.crypto || !crypto.subtle) { msg.textContent = "Ta przeglądarka nie obsługuje logowania. Otwórz stronę w Safari lub Chrome."; return; }
     btn.disabled = true; btn.textContent = "Sprawdzam…";
+    const login = norm($("g-login").value), pass = $("g-pass").value.trim();
     try {
-      const name = await open(norm($("s-login").value), $("s-pass").value.trim());
-      // Zamiast imienia pokazujemy filmik; imię tylko gdy filmiku brak
-      const video = $("s-video"), src = VIDEOS[name];
-      if (src) {
-        $("s-name").textContent = ""; $("s-name").hidden = true;
-        video.src = src; video.hidden = false;
-      } else {
-        $("s-name").textContent = name; $("s-name").hidden = false;
-        video.removeAttribute("src"); video.hidden = true;
-      }
-      $("santa-login").hidden = true; $("santa-result").hidden = false;
-      $("s-enter").hidden = !gateOpen;
-      if (gateOpen && Date.now() < UNLOCK) startWait();
+      await verify(login, pass);
+      me = { login, pass }; save();
+      $("g-pass").value = "";
+      enter();
     } catch (err) {
-      msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Sprawdź wielkość liter i spróbuj jeszcze raz.";
+      msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Spróbuj jeszcze raz.";
     } finally {
-      btn.disabled = false; btn.textContent = "Pokaż, kogo wylosowałem";
+      btn.disabled = false; btn.textContent = "Wejdź";
     }
   });
 
-  $("s-out").addEventListener("click", () => {
-    $("s-name").textContent = ""; $("s-pass").value = ""; $("s-login").value = "";
-    const video = $("s-video"); video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true;
-    $("santa-result").hidden = true; $("santa-login").hidden = false;
+  $("logout").addEventListener("click", () => {
+    try { sessionStorage.removeItem("me"); } catch (e) {}
+    location.hash = ""; location.reload();
   });
 
-  // Bramka: na wejściu logowanie na cały ekran, bez możliwości pominięcia.
-  // Po zalogowaniu (w tej karcie przeglądarki) strona jest już odblokowana.
-  // Po zalogowaniu przed 30.10 20:00 zamiast wyniku jest ekran odliczania
-  const UNLOCK = new Date(2026, 9, 30, 20, 0, 0).getTime();
-  let waitTimer = null;
-  function startWait() {
-    vault.hidden = true;
-    $("gate-wait").hidden = false;
+  // ---------- Zakładki ----------
+  function route() {
+    let tab = location.hash === "#sylwester" ? "sylwester" : "zp";
+    if (tab === "sylwester" && !$("tab-sylwester")) tab = "zp";
+    $("tab-zp").hidden = tab !== "zp";
+    if ($("tab-sylwester")) $("tab-sylwester").hidden = tab !== "sylwester";
+    document.querySelectorAll(".tab-btn").forEach(a => { if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    dispatchEvent(new Event("resize"));
+  }
+  addEventListener("hashchange", () => { route(); scrollTo(0, 0); });
+
+  // ---------- Mikołajki ----------
+  async function santa() {
+    const rec = DATA.users[me.login];
+    if (!rec) return;
+    let name;
+    try {
+      const base = await crypto.subtle.importKey("raw", enc.encode(me.login + ":" + me.pass), "PBKDF2", false, ["deriveKey"]);
+      const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(rec.s), iterations: DATA.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+      name = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(rec.i) }, key, b64(rec.c)));
+    } catch (e) { return; }
+    const show = () => {
+      $("santa-wait").hidden = true; $("santa-result").hidden = false;
+      const src = VIDEOS[name];
+      if (src) { $("s-video").src = src; $("s-video").hidden = false; }
+      else { $("s-name").textContent = name; $("s-name").hidden = false; }
+    };
+    if (Date.now() >= UNLOCK) return show();
+    $("santa-wait").hidden = false;
     const pad = n => String(n).padStart(2, "0");
-    const tick = () => {
+    const timer = setInterval(tick, 1000);
+    function tick() {
       let t = UNLOCK - Date.now();
-      if (t <= 0) {
-        clearInterval(waitTimer);
-        $("gate-wait").hidden = true;
-        vault.hidden = false;
-        return;
-      }
+      if (t <= 0) { clearInterval(timer); return show(); }
       const d = Math.floor(t / 864e5); t %= 864e5;
       const h = Math.floor(t / 36e5); t %= 36e5;
       $("w-d").textContent = d; $("w-h").textContent = pad(h);
       $("w-m").textContent = pad(Math.floor(t / 6e4)); $("w-s").textContent = pad(Math.floor((t % 6e4) / 1e3));
-    };
-    tick(); waitTimer = setInterval(tick, 1000);
+    }
+    tick();
   }
 
-  const gate = $("gate"), vault = $("vault"), home = vault.parentNode;
-  let gateOpen = false;
-  let unlocked = false;
-  try { unlocked = sessionStorage.getItem("gate-ok") === "1"; } catch (e) {}
-  if (unlocked) {
-    gate.remove();
+  // ---------- Złota Piłka ----------
+  const picks = { 5: null, 3: null, 1: null };
+
+  function renderPlayers() {
+    const box = $("players");
+    box.innerHTML = "";
+    PLAYERS.forEach((p, i) => {
+      const el = document.createElement("article");
+      el.className = "player" + (p.id === me.login ? " self" : "");
+      el.dataset.id = p.id;
+      el.innerHTML = `<div class="p-top"><span class="p-no">${String(i + 1).padStart(2, "0")}</span><span class="p-name"></span></div>
+        <div class="p-tags"><span></span></div><p class="p-bio"></p><div class="p-pts"></div>`;
+      el.querySelector(".p-name").textContent = p.name;
+      el.querySelector(".p-tags span").textContent = p.pos;
+      p.tags.forEach(t => { const s = document.createElement("span"); s.className = "hot"; s.textContent = t; el.querySelector(".p-tags").appendChild(s); });
+      el.querySelector(".p-bio").textContent = p.bio;
+      const pts = el.querySelector(".p-pts");
+      if (p.id === me.login) {
+        pts.innerHTML = '<span class="p-self">To Ty. Na siebie nie głosujesz.</span>';
+      } else {
+        [5, 3, 1].forEach(v => {
+          const b = document.createElement("button");
+          b.type = "button"; b.textContent = v; b.dataset.pts = v;
+          b.setAttribute("aria-pressed", "false");
+          b.setAttribute("aria-label", `${v} pkt dla: ${p.name}`);
+          b.addEventListener("click", () => pick(v, p.id));
+          pts.appendChild(b);
+        });
+      }
+      box.appendChild(el);
+    });
+    paint();
+  }
+
+  function pick(v, id) {
+    if (picks[v] === id) picks[v] = null;
+    else {
+      for (const k of [5, 3, 1]) if (picks[k] === id) picks[k] = null;
+      picks[v] = id;
+    }
+    $("vote-confirm").hidden = true;
+    paint();
+  }
+
+  function paint() {
+    const byId = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
+    document.querySelectorAll(".slot").forEach(s => {
+      const id = picks[s.dataset.pts];
+      s.querySelector("b").textContent = id ? byId[id].name.split(" ")[0] : "—";
+      s.classList.toggle("on", !!id);
+    });
+    document.querySelectorAll(".player").forEach(el => {
+      const id = el.dataset.id;
+      el.classList.toggle("picked", Object.values(picks).includes(id));
+      el.querySelectorAll(".p-pts button").forEach(b => b.setAttribute("aria-pressed", String(picks[b.dataset.pts] === id)));
+    });
+    $("vote-go").disabled = !(picks[5] && picks[3] && picks[1]);
+  }
+
+  $("vote-clear").addEventListener("click", () => { picks[5] = picks[3] = picks[1] = null; $("vote-confirm").hidden = true; paint(); });
+  $("vote-go").addEventListener("click", () => { $("vote-confirm").hidden = false; });
+  $("vote-no").addEventListener("click", () => { $("vote-confirm").hidden = true; });
+
+  const fbReady = () => FB.projectId && FB.apiKey;
+  const docUrl = id => `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents/glosy${id ? "/" + id : ""}`;
+  async function voteId() {
+    return hex(await crypto.subtle.digest("SHA-256", enc.encode("zp:" + me.login + ":" + me.pass)));
+  }
+
+  function markVoted() {
+    $("ballot").hidden = true; $("voted").hidden = false;
+    document.querySelectorAll(".p-pts button").forEach(b => b.disabled = true);
+  }
+
+  async function checkVoted() {
+    if (!fbReady()) {
+      $("vote-msg").textContent = "Głosowanie jeszcze nie wystartowało. Możesz już wybrać swoich faworytów.";
+      return;
+    }
+    try {
+      const r = await fetch(docUrl(await voteId()) + "?key=" + FB.apiKey);
+      if (r.ok) markVoted();
+    } catch (e) {}
+  }
+
+  $("vote-yes").addEventListener("click", async () => {
+    const msg = $("vote-msg"), yes = $("vote-yes");
+    if (!fbReady()) { msg.textContent = "Głosowanie jeszcze nie wystartowało. Spróbuj później."; $("vote-confirm").hidden = true; return; }
+    yes.disabled = true; yes.textContent = "Wysyłam…"; msg.textContent = "";
+    try {
+      const pub = await crypto.subtle.importKey("spki", b64(AUTH.pub), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
+      const ballot = JSON.stringify({ v: me.login, 5: picks[5], 3: picks[3], 1: picks[1] });
+      const sealed = toB64(await crypto.subtle.encrypt({ name: "RSA-OAEP" }, pub, enc.encode(ballot)));
+      const r = await fetch(docUrl() + "?documentId=" + (await voteId()) + "&key=" + FB.apiKey, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: { b: { stringValue: sealed } } })
+      });
+      if (r.ok || r.status === 409) { markVoted(); return; }
+      throw new Error(String(r.status));
+    } catch (e) {
+      msg.textContent = "Nie udało się wysłać głosu. Sprawdź internet i spróbuj jeszcze raz.";
+    } finally {
+      yes.disabled = false; yes.textContent = "Tak, wysyłam";
+    }
+  });
+
+  // Złote iskry w tle nagłówka Złotej Piłki
+  (() => {
+    const cv = $("zp-fx"), ctx = cv.getContext("2d");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W, H, dots;
+    function size() {
+      W = cv.width = cv.offsetWidth * dpr; H = cv.height = cv.offsetHeight * dpr;
+      dots = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: (Math.random() * 1.6 + .4) * dpr, v: (Math.random() * .4 + .15) * dpr, p: Math.random() * 6 }));
+    }
+    function frame(t) {
+      ctx.clearRect(0, 0, W, H);
+      for (const d of dots) {
+        d.y -= d.v; if (d.y < -4) { d.y = H + 4; d.x = Math.random() * W; }
+        ctx.globalAlpha = .35 + .35 * Math.sin(t / 700 + d.p);
+        ctx.fillStyle = "#e0b95c"; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 7); ctx.fill();
+      }
+      if (!reduce) requestAnimationFrame(frame);
+    }
+    size(); addEventListener("resize", size); requestAnimationFrame(frame);
+  })();
+
+  // Start: zalogowany w tej karcie przechodzi dalej, reszta widzi bramkę
+  const saved = load();
+  if (saved && AUTH.users[saved.login]) {
+    verify(saved.login, saved.pass).then(() => { me = saved; enter(); }).catch(() => { document.body.classList.add("locked"); });
   } else {
-    gateOpen = true;
-    $("gate-slot").appendChild(vault);
     document.body.classList.add("locked");
   }
-  $("s-enter").addEventListener("click", () => {
-    gateOpen = false;
-    $("s-enter").hidden = true;
-    $("s-video").pause();
-    home.appendChild(vault);
-    gate.remove();
-    document.body.classList.remove("locked");
-    try { sessionStorage.setItem("gate-ok", "1"); } catch (e) {}
-    scrollTo(0, 0);
-  });
 })();
+
 </script>
 
 </html>
