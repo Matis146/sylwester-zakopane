@@ -335,6 +335,8 @@
   .wait-cd small { font-family: var(--f-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); }
   .wait-when { margin: 0; font-family: var(--f-mono); font-size: .8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--snow); }
   .wait-note { margin: 0; color: var(--mist); font-size: .92rem; }
+  .cd-page { padding-block: 64px 96px; background: radial-gradient(90% 60% at 50% 0%, rgba(224, 185, 92, .14), transparent 60%); }
+  .cd-page .wait { max-width: 620px; margin-inline: auto; }
 
   .vault { position: relative; border-radius: var(--r); border: 1.5px solid var(--gold); background: radial-gradient(100% 80% at 0% 0%, rgba(216, 66, 59, .2), transparent 60%), linear-gradient(165deg, #1a2550, #0d1530); padding: 28px; display: grid; gap: 16px; align-content: start; min-width: 0; }
   .vault h3 { font-size: 2rem; color: var(--gold-2); }
@@ -359,12 +361,14 @@
 
   /* Zakładki w nagłówku */
   .tabs { display: flex !important; align-items: center; gap: 6px; }
-  .tab-btn { text-decoration: none; font-family: var(--f-mono); font-size: .74rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); padding: 8px 12px; border-radius: 999px; border: 1px solid transparent; transition: color .15s, border-color .15s; }
-  .tab-btn:hover { color: var(--gold-2); }
-  .tab-btn[aria-current="page"] { color: var(--ink); background: var(--gold); }
+  .bar .tab-btn { text-decoration: none; font-family: var(--f-mono); font-size: .74rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); padding: 8px 12px; border-radius: 999px; border: 1px solid transparent; transition: color .15s, border-color .15s; }
+  .bar .tab-btn:hover { color: var(--gold-2); }
+  .bar .tab-btn[aria-current="page"] { color: var(--ink); background: var(--gold); }
   .logout { font: inherit; font-family: var(--f-mono); font-size: .68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; cursor: pointer; margin-left: 4px; }
   .logout:hover { color: var(--snow); }
-  @media (max-width: 520px) { .brand span { display: none; } .tab-btn { padding: 7px 10px; font-size: .68rem; letter-spacing: 1px; } }
+  .logout { display: inline-flex; align-items: center; gap: 6px; }
+  .bar .tabs { min-width: 0; overflow-x: auto; scrollbar-width: none; gap: 6px; }
+  @media (max-width: 520px) { .brand span { display: none; } .bar .tabs { gap: 4px; } .bar .tab-btn { padding: 6px 7px; font-size: .64rem; letter-spacing: 0; white-space: nowrap; } .logout span { display: none; } .logout { padding: 7px 8px; } }
 
   /* ZŁOTA PIŁKA */
   .zp-hero { position: relative; overflow: hidden; background: radial-gradient(90% 70% at 75% 40%, rgba(224, 185, 92, .22), transparent 60%), linear-gradient(180deg, #060b1a 0%, var(--night-2) 100%); }
@@ -460,8 +464,9 @@
     <a class="brand" href="#zlota-pilka"><svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg><span>Granat <b>Szerominek</b></span></a>
     <nav class="tabs" aria-label="Zakładki">
       <a class="tab-btn" href="#zlota-pilka" data-tab="zp">Złota Piłka</a>
+      <a class="tab-btn" href="#odliczanie" data-tab="odliczanie">Odliczanie</a>
       <a class="tab-btn" href="#sylwester" data-tab="sylwester" id="tab-btn-sylwester">Sylwester</a>
-      <button class="logout" id="logout" type="button" title="Wyloguj">Wyloguj</button>
+      <button class="logout" id="logout" type="button" title="Wyloguj" aria-label="Wyloguj"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>Wyloguj</span></button>
     </nav>
   </div>
 </header>
@@ -543,6 +548,23 @@
   </section>
 </div>
 
+<div class="tab" id="tab-odliczanie" hidden>
+  <section class="cd-page">
+    <div class="wrap">
+      <div class="wait">
+        <p class="kicker" style="margin:0">Odliczanie</p>
+        <h2 class="wait-title">30 października, 20:00</h2>
+        <div class="wait-cd" aria-live="off">
+          <div><b id="w-d">--</b><small>dni</small></div>
+          <div><b id="w-h">--</b><small>godz</small></div>
+          <div><b id="w-m">--</b><small>min</small></div>
+          <div><b id="w-s">--</b><small>sek</small></div>
+        </div>
+        <p class="wait-when" id="cd-done" hidden>Czas minął!</p>
+      </div>
+    </div>
+  </section>
+</div>
 <div class="tab" id="tab-sylwester" hidden>
   <!-- HERO -->
   <section class="hero">
@@ -822,7 +844,7 @@
       <div class="sec-head">
         <p class="kicker">Losowanie prezentów</p>
         <h2>Mikołajki</h2>
-        <p class="lede">Losowanie już się odbyło. Każdy kupuje prezent dokładnie jednej osobie i nikt nie wylosował siebie. Twoja osoba odsłoni się 30 października o 20:00.</p>
+        <p class="lede">Losowanie już się odbyło. Każdy kupuje prezent dokładnie jednej osobie i nikt nie wylosował siebie. Twoja osoba jest na filmiku poniżej.</p>
       </div>
       <div class="santa">
         <div class="rules">
@@ -836,17 +858,6 @@
         </div>
 
         <div class="vault" id="vault">
-          <div class="wait" id="santa-wait" hidden>
-            <p class="kicker" style="margin:0">Twoje losowanie</p>
-            <h3 class="wait-title">Odsłonięcie za</h3>
-            <div class="wait-cd" aria-live="off">
-              <div><b id="w-d">--</b><small>dni</small></div>
-              <div><b id="w-h">--</b><small>godz</small></div>
-              <div><b id="w-m">--</b><small>min</small></div>
-              <div><b id="w-s">--</b><small>sek</small></div>
-            </div>
-            <p class="wait-when">30 października, godz. 20:00</p>
-          </div>
           <div class="reveal" id="santa-result" hidden>
             <svg class="gift-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="4" rx="1"/><path d="M5 13v8h14v-8M12 9v12"/><path d="M12 9c-2-4-6-5-6-2s4 2 6 2Zm0 0c2-4 6-5 6-2s-4 2-6 2Z"/></svg>
             <span class="who">Kupujesz prezent dla osoby z filmiku</span>
@@ -1113,9 +1124,10 @@
 
   // ---------- Zakładki ----------
   function route() {
-    let tab = location.hash === "#sylwester" ? "sylwester" : "zp";
+    let tab = location.hash === "#sylwester" ? "sylwester" : location.hash === "#odliczanie" ? "odliczanie" : "zp";
     if (tab === "sylwester" && !$("tab-sylwester")) tab = "zp";
     $("tab-zp").hidden = tab !== "zp";
+    $("tab-odliczanie").hidden = tab !== "odliczanie";
     if ($("tab-sylwester")) $("tab-sylwester").hidden = tab !== "sylwester";
     document.querySelectorAll(".tab-btn").forEach(a => { if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     dispatchEvent(new Event("resize"));
@@ -1132,19 +1144,24 @@
       const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(rec.s), iterations: DATA.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
       name = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(rec.i) }, key, b64(rec.c)));
     } catch (e) { return; }
-    const show = () => {
-      $("santa-wait").hidden = true; $("santa-result").hidden = false;
-      const src = VIDEOS[name];
-      if (src) { $("s-video").src = src; $("s-video").hidden = false; }
-      else { $("s-name").textContent = name; $("s-name").hidden = false; }
-    };
-    if (Date.now() >= UNLOCK) return show();
-    $("santa-wait").hidden = false;
+    $("santa-result").hidden = false;
+    const src = VIDEOS[name];
+    if (src) { $("s-video").src = src; $("s-video").hidden = false; }
+    else { $("s-name").textContent = name; $("s-name").hidden = false; }
+  }
+
+  // ---------- Odliczanie (zakładka) ----------
+  function countdown() {
     const pad = n => String(n).padStart(2, "0");
     const timer = setInterval(tick, 1000);
     function tick() {
       let t = UNLOCK - Date.now();
-      if (t <= 0) { clearInterval(timer); return show(); }
+      if (t <= 0) {
+        clearInterval(timer);
+        $("w-d").textContent = 0; $("w-h").textContent = $("w-m").textContent = $("w-s").textContent = "00";
+        $("cd-done").hidden = false;
+        return;
+      }
       const d = Math.floor(t / 864e5); t %= 864e5;
       const h = Math.floor(t / 36e5); t %= 36e5;
       $("w-d").textContent = d; $("w-h").textContent = pad(h);
@@ -1152,6 +1169,7 @@
     }
     tick();
   }
+  countdown();
 
   // ---------- Złota Piłka ----------
   const picks = { 5: null, 3: null, 1: null };
