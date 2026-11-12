@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kronika Granatu</title>
+<meta name="description" content="Kronika Granatu Szerominek 2018–dziś: wydarzenia i ludzie z historii klubu.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="theme-color" content="#0a1124">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* Te same barwy i kroje co strona główna (sylwester.html / index.html). */
+  :root {
+    --night: #0a1124;
+    --night-2: #10193a;
+    --panel: #151f42;
+    --line: #283461;
+    --snow: #eef1f8;
+    --mist: #9ba6c6;
+    --gold: #e0b95c;
+    --gold-2: #f3d58e;
+    --red: #d8423b;
+    --green: #4fbf8a;
+    --ink: #0a1124;
+    --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    --r: 18px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-padding-top: 70px; }
+  body { margin: 0; background: var(--night); color: var(--snow); font-family: var(--f-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: 100%; max-width: 980px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; line-height: .92; letter-spacing: .5px; margin: 0; text-wrap: balance; }
+  h2 { font-size: clamp(2.2rem, 7vw, 3.4rem); }
+  h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: .6px; line-height: 1; }
+  .kicker { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin: 0 0 12px; display: flex; align-items: center; gap: 10px; }
+  .kicker::before { content: ""; width: 22px; height: 2px; background: var(--gold); }
+  .lede { color: var(--mist); max-width: 60ch; margin: 16px 0 0; font-size: 1.05rem; }
+  .muted { color: var(--mist); }
+
+  /* Nagłówek */
+  .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--night) 82%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--f-display); font-weight: 800; font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; }
+  .brand svg { width: 26px; height: 31px; flex: none; }
+  .brand b { color: var(--gold); }
+  .tabs { display: flex; align-items: center; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .tab-btn { text-decoration: none; font-family: var(--f-mono); font-size: .74rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); padding: 8px 12px; border-radius: 999px; white-space: nowrap; }
+  .tab-btn:hover { color: var(--gold-2); }
+  .tab-btn[aria-current="page"] { color: var(--ink); background: var(--gold); }
+  .logout { font: inherit; font-family: var(--f-mono); font-size: .68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .logout:hover { color: var(--snow); }
+  @media (max-width: 520px) { .brand span { display: none; } .tab-btn { padding: 6px 8px; font-size: .66rem; letter-spacing: .5px; } .logout span { display: none; } .logout { padding: 7px 8px; } }
+
+  /* Pas ozdobny (jak na stronie głównej) */
+  .folk { height: 22px; background-color: var(--night-2); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='22' viewBox='0 0 44 22'%3E%3Cpath d='M22 2 30 11 22 20 14 11Z' fill='%23d8423b'/%3E%3Cpath d='M22 7 25.5 11 22 15 18.5 11Z' fill='%23e0b95c'/%3E%3Ccircle cx='3' cy='11' r='2.2' fill='%23e0b95c'/%3E%3Ccircle cx='41' cy='11' r='2.2' fill='%23e0b95c'/%3E%3Cpath d='M6 11h6M32 11h6' stroke='%23e0b95c' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: repeat-x; background-position: center; border-block: 1px solid var(--line); }
+
+  /* Hero */
+  .hero { background: radial-gradient(120% 90% at 100% 0%, rgba(216, 66, 59, .18), transparent 55%), linear-gradient(180deg, #060b1a 0%, var(--night-2) 100%); }
+  .hero .wrap { padding-block: 56px 40px; }
+  .hero h1 { font-size: clamp(3.2rem, 13vw, 6.4rem); }
+  .hero h1 span { color: var(--gold); display: block; font-size: .42em; letter-spacing: 4px; margin-top: .25em; }
+  .eras { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .era-chip { font-family: var(--f-mono); font-size: .7rem; letter-spacing: 1.2px; text-transform: uppercase; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--snow); background: rgba(255, 255, 255, .03); }
+  .era-chip b { color: var(--gold-2); font-weight: 700; }
+
+  /* Przełącznik widoków */
+  .views { position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); z-index: 10; background: var(--night); border-bottom: 1px solid var(--line); }
+  .views .wrap { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-block: 10px; }
+  .view-btn { font: inherit; font-weight: 600; font-size: .92rem; color: var(--mist); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+  .view-btn[aria-current="page"] { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+  .view-btn.add { color: var(--snow); border-color: var(--red); background: rgba(216, 66, 59, .12); }
+  .view-btn.add[aria-current="page"] { background: var(--red); color: #fff; }
+  @media (max-width: 520px) { .views .wrap { gap: 5px; } .view-btn { padding: 8px 10px; font-size: .84rem; } .view-btn .wide { display: none; } }
+  main .wrap { padding-block: 32px 80px; }
+
+  /* Filtry */
+  .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 620px) { .filters { grid-template-columns: 1fr 1fr; } .filters .f-osoba { grid-column: 1 / -1; } }
+
+  /* Oś czasu */
+  .era { margin-top: 40px; }
+  .era:first-child { margin-top: 0; }
+  .era-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 2px solid var(--gold); }
+  .era-head h2 { font-size: clamp(2rem, 7vw, 3rem); }
+  .era-head small { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 2px; color: var(--mist); text-transform: uppercase; }
+  .season { position: relative; padding-left: 26px; margin-top: 22px; }
+  .season::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 0; width: 2px; background: var(--line); }
+  .season-label { position: relative; font-family: var(--f-mono); font-weight: 700; font-size: .8rem; letter-spacing: 2px; color: var(--gold-2); margin: 0 0 12px; }
+  .season-label::before { content: ""; position: absolute; left: -26px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--night); border: 3px solid var(--gold); }
+  .events { display: grid; gap: 12px; }
+  .ev { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+  .ev.pozytywne { border-left-color: var(--green); }
+  .ev.negatywne { border-left-color: var(--red); }
+  .ev-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-family: var(--f-mono); font-size: .7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); }
+  .badge { color: var(--ink); background: var(--gold); border-radius: 6px; padding: 2px 7px; font-weight: 700; }
+  .badge.afera { background: var(--red); color: #fff; }
+  .badge.transfer { background: var(--green); }
+  .ev h3 { margin: 8px 0 6px; font-size: 1.45rem; }
+  .ev-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ev-text.clamp { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .more { font: inherit; font-size: .88rem; color: var(--gold-2); background: none; border: 0; padding: 4px 0 0; cursor: pointer; text-decoration: underline; }
+  .quote { margin: 12px 0 0; padding: 10px 14px; border-left: 3px solid var(--gold); background: rgba(224, 185, 92, .08); border-radius: 0 10px 10px 0; font-style: italic; color: var(--gold-2); overflow-wrap: anywhere; }
+  .people { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .person-chip { font-size: .8rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--snow); }
+  .media-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--f-mono); font-size: .74rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-2); text-decoration: none; border-bottom: 1px solid var(--gold); }
+
+  .empty { text-align: center; border: 2px dashed var(--line); border-radius: var(--r); padding: 44px 20px; display: grid; gap: 14px; justify-items: center; }
+  .empty h3 { color: var(--gold-2); }
+  .empty p { margin: 0; color: var(--mist); max-width: 46ch; }
+
+  /* Ludzie */
+  .cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+  .pcard { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .pcard h3 { font-size: 1.8rem; color: var(--gold-2); }
+  .pcard .role { font-family: var(--f-mono); font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); }
+  .pcard .said { margin: 0; padding: 10px 12px; background: rgba(255, 255, 255, .03); border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; }
+  .pcard .said b { display: block; font-family: var(--f-mono); font-size: .64rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 2px; }
+  .pcard ul { margin: 0; padding-left: 18px; font-size: .92rem; }
+  .pcard li { margin: 2px 0; }
+
+  /* Formularze */
+  .form { display: grid; gap: 18px; max-width: 720px; }
+  .form-intro { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; color: #c3cbe4; }
+  .form-intro p { margin: 0; }
+  .field { display: grid; gap: 6px; min-width: 0; }
+  .field > label, .field > .label { font-family: var(--f-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+  .field .hint { font-size: .85rem; color: var(--mist); margin: 0; }
+  .req { color: var(--red); }
+  input[type=text], input[type=url], input[type=password], select, textarea {
+    font: inherit; font-size: 16px; color: var(--snow); background: rgba(10, 17, 36, .6); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; width: 100%;
+  }
+  textarea { min-height: 130px; resize: vertical; line-height: 1.5; }
+  textarea.long { min-height: 220px; }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
+  .row2 { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  .row3 { display: grid; gap: 14px; grid-template-columns: 1.2fr 1fr 1fr; }
+  @media (max-width: 620px) { .row2, .row3 { grid-template-columns: 1fr; } }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pills label { position: relative; }
+  .pills input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .pills span { display: inline-block; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); font-size: .92rem; cursor: pointer; }
+  .pills input:checked + span { background: var(--gold); color: var(--ink); border-color: var(--gold); font-weight: 600; }
+  .pills input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .count { font-family: var(--f-mono); font-size: .68rem; color: var(--mist); justify-self: end; }
+  .go { display: inline-block; text-decoration: none; font: inherit; font-weight: 700; font-size: 1.05rem; color: var(--ink); background: var(--gold); border: 0; border-radius: 999px; padding: 14px 26px; cursor: pointer; justify-self: start; }
+  .go:hover { background: var(--gold-2); }
+  .go:disabled { opacity: .6; cursor: wait; }
+  .msg { margin: 0; min-height: 1.4em; font-size: .95rem; }
+  .msg.err { color: var(--red); }
+  .done { border: 1.5px solid var(--green); background: rgba(79, 191, 138, .08); border-radius: var(--r); padding: 24px; display: grid; gap: 10px; justify-items: start; }
+  .done h3 { color: var(--green); }
+  .done p { margin: 0; color: #c3cbe4; }
+  .ghost { font: inherit; background: none; border: 1px solid var(--line); color: var(--snow); border-radius: 999px; padding: 10px 18px; cursor: pointer; }
+
+  /* Bramka logowania (jak na stronie głównej) */
+  body.locked { overflow: hidden; }
+  .gate { position: fixed; inset: 0; z-index: 100; overflow-y: auto; background: radial-gradient(120% 70% at 50% 110%, #2b3f80 0%, transparent 60%), linear-gradient(180deg, #060b1a 0%, var(--night) 100%); padding: max(24px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; place-items: center; }
+  .gate-inner { width: 100%; max-width: 460px; display: grid; gap: 24px; }
+  .gate-brand { display: flex; align-items: center; gap: 16px; }
+  .gate-brand svg { width: 52px; height: 62px; flex: none; }
+  .gate-title { font-size: clamp(2.4rem, 11vw, 3.4rem); }
+  .gate-title span { color: var(--gold); }
+  .vault { border-radius: var(--r); border: 1.5px solid var(--gold); background: radial-gradient(100% 80% at 0% 0%, rgba(216, 66, 59, .2), transparent 60%), linear-gradient(165deg, #1a2550, #0d1530); padding: 28px; display: grid; gap: 14px; box-shadow: 0 30px 70px rgba(0, 0, 0, .5); }
+  .vault h3 { font-size: 2rem; color: var(--gold-2); }
+  .vault input { font-size: 1.05rem; }
+
+  footer { border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 26px !important; font-family: var(--f-mono); font-size: .7rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mist); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="crest" viewBox="0 0 100 120">
+      <path d="M50 4 92 18v38c0 30-20 50-42 60C28 106 8 86 8 56V18Z" fill="#1a2a5e" stroke="#fff" stroke-width="4"/>
+      <path d="M50 14 82 25v31c0 24-15 40-32 49C33 96 18 80 18 56V25Z" fill="none" stroke="#c8a24a" stroke-width="2.5"/>
+      <rect x="18" y="38" width="64" height="12" fill="#c8102e"/>
+      <text x="50" y="47.5" font-size="9" font-family="Arial, sans-serif" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1.5">GRANAT</text>
+      <text x="50" y="88" font-size="34" font-family="Arial, sans-serif" font-weight="700" fill="#fff" text-anchor="middle">GS</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Logowanie">
+  <div class="gate-inner">
+    <div class="gate-brand">
+      <svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg>
+      <div>
+        <p class="kicker" style="margin:0 0 6px">Tylko dla ekipy</p>
+        <h1 class="gate-title">Granat <span>Szerominek</span></h1>
+      </div>
+    </div>
+    <form class="vault" id="g-form" autocomplete="off">
+      <h3>Zaloguj się</h3>
+      <div class="field"><label for="g-login">Login</label><input type="text" id="g-login" autocapitalize="none" spellcheck="false" required></div>
+      <div class="field"><label for="g-pass">Hasło</label><input type="password" id="g-pass" autocapitalize="none" spellcheck="false" required></div>
+      <button class="go" id="g-go" type="submit">Wejdź</button>
+      <p class="msg err" id="g-msg" role="alert"></p>
+    </form>
+  </div>
+</div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand home-link" href="./#zlota-pilka"><svg viewBox="0 0 100 120" aria-hidden="true"><use href="#crest"/></svg><span>Granat <b>Szerominek</b></span></a>
+    <nav class="tabs" aria-label="Strony">
+      <a class="tab-btn home-link" href="./#zlota-pilka">Złota Piłka</a>
+      <a class="tab-btn" href="kronika.html" aria-current="page">Kronika</a>
+      <button class="logout" id="logout" type="button" title="Wyloguj" aria-label="Wyloguj"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>Wyloguj</span></button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="kicker">Materiał do serialu dokumentalnego</p>
+    <h1>Kronika Granatu<span>2018 – dziś</span></h1>
+    <p class="lede">Wszystko, co się wydarzyło: imprezy, mecze, transfery, odejścia, afery i najgłupsze sytuacje. Dopisz to, co pamiętasz – im więcej szczegółów, tym lepszy będzie serial.</p>
+    <div class="eras" aria-label="Ery klubu">
+      <span class="era-chip"><b>Team146</b> · 2018–2020</span>
+      <span class="era-chip"><b>Płonka Płońsk</b> · 2020–2024</span>
+      <span class="era-chip"><b>Granat Szerominek</b> · 2024–dziś</span>
+    </div>
+  </div>
+</section>
+<div class="folk" aria-hidden="true"></div>
+
+<nav class="views" aria-label="Widoki kroniki">
+  <div class="wrap">
+    <a class="view-btn" href="#os" data-view="os">Oś czasu</a>
+    <a class="view-btn" href="#ludzie" data-view="ludzie">Ludzie<span class="wide"> Granatu</span></a>
+    <a class="view-btn add" href="#zglos" data-view="zglos">+ Wydarzenie</a>
+    <a class="view-btn add" href="#osoba" data-view="osoba">+ Osoba</a>
+  </div>
+</nav>
+
+<main>
+  <!-- OŚ CZASU -->
+  <section class="view" id="view-os">
+    <div class="wrap">
+      <div class="filters">
+        <div class="field"><label for="f-rodzaj">Rodzaj</label><select id="f-rodzaj"><option value="">Wszystkie</option></select></div>
+        <div class="field"><label for="f-era">Era</label><select id="f-era"><option value="">Wszystkie</option></select></div>
+        <div class="field f-osoba"><label for="f-osoba">Osoba</label><select id="f-osoba"><option value="">Wszyscy</option></select></div>
+      </div>
+      <p class="msg muted" id="os-status" role="status">Ładuję kronikę…</p>
+      <div id="timeline"></div>
+    </div>
+  </section>
+
+  <!-- LUDZIE -->
+  <section class="view" id="view-ludzie" hidden>
+    <div class="wrap">
+      <p class="kicker">Ludzie Granatu</p>
+      <h2>Kto tworzył ten klub</h2>
+      <p class="lede" style="margin-bottom:28px">Karty osób z tym, co napisała o nich ekipa, i wydarzeniami, w których brały udział.</p>
+      <div class="cards" id="cards"></div>
+    </div>
+  </section>
+
+  <!-- ZGŁOŚ WYDARZENIE -->
+  <section class="view" id="view-zglos" hidden>
+    <div class="wrap">
+      <p class="kicker">Zgłoś wydarzenie</p>
+      <h2 style="margin-bottom:20px">Co się wydarzyło?</h2>
+      <form class="form" id="form-zd" novalidate>
+        <div class="form-intro"><p>Pisz śmiało i z detalami: kto, gdzie, co kto powiedział, jak się skończyło. Zgłoszenie pojawi się w kronice dopiero, gdy zatwierdzi je Mateusz. Pola z <span class="req">*</span> są wymagane.</p></div>
+
+        <div class="field">
+          <label for="zd-tytul">Tytuł wydarzenia <span class="req">*</span></label>
+          <input type="text" id="zd-tytul" name="tytul" maxlength="120" placeholder="np. Pierwszy mecz na orliku w Szerominku" required>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label for="zd-data">Data</label>
+            <input type="text" id="zd-data" name="data" maxlength="40" placeholder="np. 14.07.2021, lipiec 2021, ok. 2019">
+          </div>
+          <div class="field">
+            <label for="zd-sezon">Sezon <span class="req">*</span></label>
+            <select id="zd-sezon" name="sezon" required></select>
+          </div>
+          <div class="field">
+            <label for="zd-era">Era <span class="req">*</span></label>
+            <select id="zd-era" name="era" required></select>
+          </div>
+        </div>
+        <p class="hint muted" style="margin:-8px 0 0;font-size:.85rem">Sezon liczymy jak w piłce: od lata do lata (np. luty 2022 = sezon 2021/22). Data może być przybliżona.</p>
+
+        <div class="field">
+          <span class="label">Rodzaj <span class="req">*</span></span>
+          <div class="pills" id="zd-rodzaj"></div>
+        </div>
+
+        <div class="field">
+          <label for="zd-kto">Kto był?</label>
+          <input type="text" id="zd-kto" name="kto" maxlength="300" placeholder="Imiona albo ksywki, po przecinku">
+        </div>
+
+        <div class="field">
+          <label for="zd-opis">Opis <span class="req">*</span></label>
+          <p class="hint">Opisz jak najdokładniej, co się stało: od czego się zaczęło, co było najlepsze/najgorsze, jak się skończyło.</p>
+          <textarea id="zd-opis" name="opis" class="long" maxlength="8000" required></textarea>
+          <span class="count" data-for="zd-opis"></span>
+        </div>
+
+        <div class="field">
+          <label for="zd-cytat">Legendarny tekst / cytat</label>
+          <input type="text" id="zd-cytat" name="cytat" maxlength="500" placeholder="Co ktoś wtedy powiedział (opcjonalnie)">
+        </div>
+
+        <div class="field">
+          <span class="label">To wspomnienie jest… <span class="req">*</span></span>
+          <div class="pills" id="zd-wydzwiek"></div>
+        </div>
+
+        <div class="field">
+          <span class="label">Czy może trafić do serialu? <span class="req">*</span></span>
+          <div class="pills" id="zd-serial"></div>
+          <p class="hint">„Nie” = zobaczy to tylko Mateusz, nie pojawi się w kronice ani w serialu.</p>
+        </div>
+
+        <div class="field">
+          <label for="zd-link">Link do zdjęcia lub filmu</label>
+          <input type="url" id="zd-link" name="link" maxlength="500" placeholder="https://… (Google Drive, YouTube, Instagram)" inputmode="url" autocapitalize="none">
+        </div>
+
+        <div class="field">
+          <label for="zd-autor">Kto zgłasza <span class="req">*</span></label>
+          <input type="text" id="zd-autor" name="autor" maxlength="60" required>
+        </div>
+
+        <button class="go" type="submit">Wyślij zgłoszenie</button>
+        <p class="msg err" role="alert"></p>
+      </form>
+      <div class="done" id="done-zd" hidden>
+        <h3>Dzięki, poszło!</h3>
+        <p>Zgłoszenie czeka na zatwierdzenie przez Mateusza. Pamiętasz coś jeszcze?</p>
+        <button class="ghost" type="button" data-again="zd">Zgłoś kolejne wydarzenie</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOPISZ OSOBĘ -->
+  <section class="view" id="view-osoba" hidden>
+    <div class="wrap">
+      <p class="kicker">Dopisz osobę</p>
+      <h2 style="margin-bottom:20px">Kto był w ekipie?</h2>
+      <form class="form" id="form-os" novalidate>
+        <div class="form-intro"><p>Możesz dopisać kogoś nowego albo dodać swoje zdanie o kimś, kto już jest w kronice – Mateusz połączy wpisy. Pola z <span class="req">*</span> są wymagane.</p></div>
+
+        <div class="field">
+          <label for="os-imie">Imię i nazwisko / ksywka <span class="req">*</span></label>
+          <input type="text" id="os-imie" name="imie" maxlength="80" placeholder="np. Jan Kowalski „Kowal”" required>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="os-dolaczyl">Kiedy dołączył(a)?</label>
+            <select id="os-dolaczyl" name="dolaczyl"></select>
+          </div>
+          <div class="field">
+            <label for="os-odszedl">Kiedy odszedł / odeszła?</label>
+            <select id="os-odszedl" name="odszedl"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="os-rola">Rola w ekipie</label>
+          <input type="text" id="os-rola" name="rola" maxlength="120" placeholder="np. bramkarz, organizator imprez, śmieszek">
+        </div>
+
+        <div class="field">
+          <label for="os-charakter">Jaki to człowiek?</label>
+          <textarea id="os-charakter" name="charakter" maxlength="2000" placeholder="Charakter, zachowanie, z czego jest znany"></textarea>
+          <span class="count" data-for="os-charakter"></span>
+        </div>
+
+        <div class="field">
+          <label for="os-historia">Najlepsza historia z tą osobą</label>
+          <textarea id="os-historia" name="historia" class="long" maxlength="5000"></textarea>
+          <span class="count" data-for="os-historia"></span>
+        </div>
+
+        <div class="field">
+          <label for="os-autor">Kto dopisuje <span class="req">*</span></label>
+          <input type="text" id="os-autor" name="autor" maxlength="60" required>
+        </div>
+
+        <button class="go" type="submit">Wyślij</button>
+        <p class="msg err" role="alert"></p>
+      </form>
+      <div class="done" id="done-os" hidden>
+        <h3>Dzięki, poszło!</h3>
+        <p>Wpis czeka na zatwierdzenie przez Mateusza.</p>
+        <button class="ghost" type="button" data-again="os">Dopisz kolejną osobę</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>Kronika Granatu · 2018–dziś</span><span>Granat Szerominek</span></div></footer>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Stałe ----------
+  const FB = { projectId: "granat-zlota-pilka-7299", apiKey: "AIzaSyCt3gklt5Vb5j-YmuBKUBb4oQqY7C1usnw" };
+  // Testy lokalne: kronika.html?emu łączy się z emulatorem Firestore zamiast z prawdziwą bazą.
+  const EMU = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has("emu");
+  const DOC_ROOT = `projects/${FB.projectId}/databases/(default)/documents`;
+  const API = (EMU ? "http://127.0.0.1:8085/v1/" : "https://firestore.googleapis.com/v1/") + DOC_ROOT;
+  const KEY = EMU ? "" : "?key=" + FB.apiKey;
+  // Lokalnie strona główna to sylwester.html; po wdrożeniu – index.html („./”).
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll(".home-link").forEach(a => a.href = "sylwester.html#zlota-pilka");
+
+  const SEZONY = ["2018/19", "2019/20", "2020/21", "2021/22", "2022/23", "2023/24", "2024/25", "2025/26", "2026/27"];
+  const ERY = [
+    { id: "team146", name: "Team146", years: "ok. 2018–2020", note: "zaczęło się od Fortnite, sezon 4" },
+    { id: "plonka", name: "Płonka Płońsk", years: "od 2020" },
+    { id: "granat", name: "Granat Szerominek", years: "od ok. 2024" },
+  ];
+  const eraForSeason = s => (SEZONY.indexOf(s) <= 1 ? "team146" : SEZONY.indexOf(s) <= 5 ? "plonka" : "granat");
+  const RODZAJE = { impreza: "Impreza", mecz: "Mecz / granie", transfer: "Transfer (ktoś dołącza)", odejscie: "Odejście", afera: "Afera / konflikt", smieszne: "Śmieszna sytuacja", inne: "Inne" };
+  const RODZAJ_KROTKO = { impreza: "Impreza", mecz: "Mecz", transfer: "Transfer", odejscie: "Odejście", afera: "Afera", smieszne: "Śmieszne", inne: "Inne" };
+  const WYDZWIEK = { pozytywne: "Pozytywne", negatywne: "Negatywne", mieszane: "Mieszane" };
+  const SERIAL = { tak: "Tak", "tak-bez-szczegolow": "Tak, ale bez szczegółów", nie: "Nie" };
+  const ODSZEDL = { "": "—", "do-dzis": "Jest do dziś", "przychodzi-odchodzi": "Przychodzi i odchodzi" };
+  const IMIONA = { rafal: "Rafał", gadom: "Gadom" }; // podpowiedź „kto zgłasza” z loginu
+
+  // Weryfikatory logowania – te same co w sylwester.html (zmieniasz konta tam, zmień też tu).
+  const AUTH = {"iter":100000,"users":{"nadia":{"s":"1l6qvjz8kSa1TgfdC9JvzQ==","h":"PZ1mfWb/pJ2NGgMwm9RrZLSzhW91tmW1jUWv2z6kLNA="},"zuzia":{"s":"7YHM8NFFQCRQPgGfyPCbww==","h":"qtvBSTXKayUQ9DtmpmlxDdRm00lz73Fhn1jnMFGIzLU="},"mateusz":{"s":"82mFK/SMIYAp+COvpIISiQ==","h":"mB3XQ0UuwWvOJBES+qhc4LedZNG9AggEueVlO0GFhJk="},"marcel":{"s":"FnuK4yor/MNMZtLGGumVOA==","h":"aIZGwSWOZgHFM+YlGii0MDqHweFTgtEdQH0KzRsVrLU="},"rafal":{"s":"kkzycMchRUYfxgAOGzHkPw==","h":"AHA24I1IK037LYdSlb3vF/gOpbV0BH1AmUQppieUrX4="},"ksawery":{"s":"Kt+ptoGGP5sUjiCAMCmCzg==","h":"iBTlRQ3LD5aF5qAevsiIxR6S4VFuu3ZhyurAg6/P2d8="},"oliwier":{"s":"P5cRtVmBr5I7IDtyARDj6A==","h":"kUxeIdCqucvCdePaSP+WrHQe7C1tgLfWVerpVL1mbUc="},"ignacy":{"s":"tPMSAt5s7m1ZNyz9BJ+0tQ==","h":"psrSbXcYBVS9PBuL9XrtIUsUEdsrGofqlzMLv7lV8N8="},"jacek":{"s":"vU+wnq6s8P+BkHBT+oj5PQ==","h":"q5g04sGQtBwfj+DnAKfKocvKUpKfOrmVyWRK8WeoV8w="},"gadom":{"s":"26QEYUf3YJjQNgYi7dwX3g==","h":"p+HE0cDmUWkt2oxaSDEa9MsMbjrJ1xWiEttkBfuQnx4="},"szymon":{"s":"Pc5t8e8mJzkxNWZV2FZc1g==","h":"PiUJEqAQFsJtuc/uhlSg7+LJwC5sxDinMnpJxsQa15I="},"maks":{"s":"ghqr2Ju5O+DzO6D/x0nAiw==","h":"PrXLMEol9szGKuwI14y8cZwYhetlNb+9bhwvIHH2aLM="},"nikodem":{"s":"nAOZTTdNB1TsFw3i/CSvVQ==","h":"u+s8xInOs1zm5dSdMWUkWujUv61RVBFVTdlcyJk4Luk="}}};
+
+  const $ = id => document.getElementById(id);
+  const enc = new TextEncoder();
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+  const norm = s => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+  const words = s => norm(s).split(/[^a-z0-9]+/).filter(w => w.length >= 3);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  let me = null;
+
+  // ---------- Logowanie (wspólne z resztą strony: sessionStorage „me”) ----------
+  async function verify(login, pass) {
+    const rec = AUTH.users[login];
+    if (!rec) throw new Error("login");
+    const base = await crypto.subtle.importKey("raw", enc.encode(login + ":" + pass), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: b64(rec.s), iterations: AUTH.iter, hash: "SHA-256" }, base, 256);
+    if (toB64(bits) !== rec.h) throw new Error("pass");
+  }
+  const save = () => { try { sessionStorage.setItem("me", JSON.stringify(me)); } catch (e) {} };
+  const load = () => { try { return JSON.parse(sessionStorage.getItem("me") || "null"); } catch (e) { return null; } };
+
+  $("g-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = $("g-go"), msg = $("g-msg");
+    msg.textContent = "";
+    if (!window.crypto || !crypto.subtle) { msg.textContent = "Ta przeglądarka nie obsługuje logowania. Otwórz stronę w Safari lub Chrome."; return; }
+    btn.disabled = true; btn.textContent = "Sprawdzam…";
+    const login = norm($("g-login").value), pass = $("g-pass").value.trim();
+    try { await verify(login, pass); me = { login, pass }; save(); $("g-pass").value = ""; enter(); }
+    catch (err) { msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Spróbuj jeszcze raz."; }
+    finally { btn.disabled = false; btn.textContent = "Wejdź"; }
+  });
+  $("logout").addEventListener("click", () => { try { sessionStorage.removeItem("me"); } catch (e) {} location.hash = ""; location.reload(); });
+
+  // ---------- Firestore (REST) ----------
+  const toFields = obj => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, { stringValue: v }]));
+  const fromDoc = d => ({ id: d.name.split("/").pop(), ...Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, v.stringValue ?? v.timestampValue ?? ""])) });
+  const newId = () => { const a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", r = crypto.getRandomValues(new Uint8Array(20)); return [...r].map(x => a[x % a.length]).join(""); };
+
+  async function create(coll, data) {
+    const body = { writes: [{
+      update: { name: `${DOC_ROOT}/${coll}/${newId()}`, fields: toFields({ ...data, status: "oczekuje" }) },
+      currentDocument: { exists: false },
+      updateTransforms: [{ fieldPath: "utworzono", setToServerValue: "REQUEST_TIME" }],
+    }] };
+    const r = await fetch(`${API}:commit${KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error("save " + r.status);
+  }
+  async function approved(coll) {
+    const body = { structuredQuery: { from: [{ collectionId: coll }], where: { fieldFilter: { field: { fieldPath: "status" }, op: "EQUAL", value: { stringValue: "zatwierdzone" } } } } };
+    const r = await fetch(`${API}:runQuery${KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error("load " + r.status);
+    return (await r.json()).filter(x => x.document).map(x => fromDoc(x.document));
+  }
+
+  // ---------- Widoki ----------
+  function route() {
+    const v = ["ludzie", "zglos", "osoba"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "os";
+    document.querySelectorAll(".view").forEach(s => s.hidden = s.id !== "view-" + v);
+    document.querySelectorAll(".view-btn").forEach(a => a.dataset.view === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  }
+  addEventListener("hashchange", () => { route(); scrollTo({ top: document.querySelector(".hero").offsetHeight, behavior: "instant" }); });
+
+  // ---------- Dane i wyświetlanie ----------
+  let EVENTS = [], PEOPLE = [];
+  const personKey = p => norm(p.imie).replace(/[„”"«»]/g, "").replace(/\s+/g, " ");
+  const involved = (ev, person) => { const ws = new Set(words(ev.kto || "")); return words(person.imie).some(w => ws.has(w)); };
+
+  function mergedPeople() {
+    const map = new Map();
+    for (const p of PEOPLE) {
+      const k = personKey(p);
+      if (!map.has(k)) map.set(k, { imie: p.imie.trim(), dolaczyl: "", odszedl: "", rola: [], wpisy: [] });
+      const m = map.get(k);
+      if (p.dolaczyl && !m.dolaczyl) m.dolaczyl = p.dolaczyl;
+      if (p.odszedl && !m.odszedl) m.odszedl = p.odszedl;
+      if (p.rola && !m.rola.includes(p.rola)) m.rola.push(p.rola);
+      if (p.charakter) m.wpisy.push(["Jaki to człowiek", p.charakter]);
+      if (p.historia) m.wpisy.push(["Najlepsza historia", p.historia]);
+    }
+    return [...map.values()].sort((a, b) => (SEZONY.indexOf(a.dolaczyl) + 1 || 99) - (SEZONY.indexOf(b.dolaczyl) + 1 || 99) || a.imie.localeCompare(b.imie, "pl"));
+  }
+
+  function eventCard(ev) {
+    const card = el("article", "ev " + (ev.wydzwiek || ""));
+    const meta = el("div", "ev-meta");
+    meta.append(el("span", "badge " + ev.rodzaj, RODZAJ_KROTKO[ev.rodzaj] || "Inne"));
+    if (ev.data) meta.append(el("span", "", ev.data));
+    card.append(meta, el("h3", "", ev.tytul));
+    const p = el("p", "ev-text", ev.opis);
+    card.append(p);
+    if (ev.opis.length > 420) {
+      p.classList.add("clamp");
+      const b = el("button", "more", "Czytaj dalej"); b.type = "button";
+      b.addEventListener("click", () => { const c = p.classList.toggle("clamp"); b.textContent = c ? "Czytaj dalej" : "Zwiń"; });
+      card.append(b);
+    }
+    if (ev.cytat) card.append(el("p", "quote", "„" + ev.cytat.replace(/^[„"]|[”"]$/g, "") + "”"));
+    if (ev.kto) {
+      const ppl = el("div", "people");
+      ev.kto.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean).forEach(n => ppl.append(el("span", "person-chip", n)));
+      card.append(ppl);
+    }
+    if (/^https:\/\//.test(ev.link || "")) {
+      const a = el("a", "media-link", "Zdjęcie / film ↗"); a.href = ev.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+      card.append(a);
+    }
+    return card;
+  }
+
+  function renderTimeline() {
+    const fR = $("f-rodzaj").value, fE = $("f-era").value, fO = $("f-osoba").value;
+    const person = fO ? mergedPeople().find(p => personKey(p) === fO) : null;
+    const list = EVENTS.filter(e => (!fR || e.rodzaj === fR) && (!fE || e.era === fE) && (!person || involved(e, person)));
+    const box = $("timeline"); box.replaceChildren();
+    if (!EVENTS.length) {
+      const em = el("div", "empty");
+      em.append(el("h3", "", "Kronika czeka na pierwsze wspomnienia"), el("p", "", "Nic jeszcze nie zostało zatwierdzone. Zacznij od wydarzenia, które pamiętasz najlepiej."));
+      const a = el("a", "go", "Zgłoś wydarzenie"); a.href = "#zglos"; a.style.textDecoration = "none"; em.append(a);
+      box.append(em); return;
+    }
+    if (!list.length) { box.append(el("p", "muted", "Brak wydarzeń dla wybranych filtrów.")); return; }
+    for (const era of ERY) {
+      const inEra = list.filter(e => e.era === era.id);
+      if (!inEra.length) continue;
+      const sec = el("section", "era");
+      const head = el("div", "era-head"); head.append(el("h2", "", era.name), el("small", "", era.years));
+      sec.append(head);
+      for (const s of SEZONY) {
+        const inS = inEra.filter(e => e.sezon === s).sort((a, b) => (a.utworzono || "").localeCompare(b.utworzono || ""));
+        if (!inS.length) continue;
+        const ss = el("div", "season"); ss.append(el("p", "season-label", "Sezon " + s));
+        const evs = el("div", "events"); inS.forEach(e => evs.append(eventCard(e)));
+        ss.append(evs); sec.append(ss);
+      }
+      box.append(sec);
+    }
+  }
+
+  function renderPeople() {
+    const box = $("cards"); box.replaceChildren();
+    const people = mergedPeople();
+    if (!people.length) {
+      const em = el("div", "empty"); em.style.gridColumn = "1 / -1";
+      em.append(el("h3", "", "Jeszcze nikogo tu nie ma"), el("p", "", "Dopisz kogoś z ekipy – siebie też możesz."));
+      const a = el("a", "go", "Dopisz osobę"); a.href = "#osoba"; a.style.textDecoration = "none"; em.append(a);
+      box.append(em); return;
+    }
+    for (const p of people) {
+      const c = el("article", "pcard");
+      c.append(el("h3", "", p.imie));
+      const when = [p.dolaczyl && "od " + p.dolaczyl, p.odszedl && (SEZONY.includes(p.odszedl) ? "do " + p.odszedl : ODSZEDL[p.odszedl])].filter(Boolean).join(" · ");
+      if (when || p.rola.length) c.append(el("div", "role", [when, p.rola.join(", ")].filter(Boolean).join(" · ")));
+      for (const [t, txt] of p.wpisy) { const s = el("p", "said"); s.append(el("b", "", t), document.createTextNode(txt)); c.append(s); }
+      const evs = EVENTS.filter(e => involved(e, p)).sort((a, b) => SEZONY.indexOf(a.sezon) - SEZONY.indexOf(b.sezon));
+      if (evs.length) {
+        c.append(el("div", "role", "Wydarzenia"));
+        const ul = el("ul"); evs.forEach(e => ul.append(el("li", "", `${e.sezon} – ${e.tytul}`))); c.append(ul);
+      }
+      box.append(c);
+    }
+  }
+
+  function fillFilters() {
+    const fO = $("f-osoba"), cur = fO.value;
+    fO.replaceChildren(new Option("Wszyscy", ""));
+    mergedPeople().forEach(p => fO.append(new Option(p.imie, personKey(p))));
+    fO.value = cur;
+    $("f-osoba").closest(".field").hidden = !PEOPLE.length;
+  }
+
+  async function loadAll() {
+    const st = $("os-status");
+    try {
+      [EVENTS, PEOPLE] = await Promise.all([approved("zdarzenia"), approved("osoby")]);
+      st.textContent = ""; st.hidden = true;
+    } catch (e) {
+      st.hidden = false; st.className = "msg err"; st.textContent = "Nie udało się wczytać kroniki. Sprawdź internet i odśwież stronę.";
+    }
+    fillFilters(); renderTimeline(); renderPeople();
+  }
+
+  // ---------- Formularze ----------
+  function pills(boxId, name, opts, required) {
+    const box = $(boxId);
+    for (const [v, label] of Object.entries(opts)) {
+      const l = el("label"), i = el("input"); i.type = "radio"; i.name = name; i.value = v; if (required) i.required = true;
+      l.append(i, el("span", "", label)); box.append(l);
+    }
+  }
+  function setupSelects() {
+    const sz = $("zd-sezon"); sz.append(new Option("Wybierz…", "")); SEZONY.forEach(s => sz.append(new Option(s, s)));
+    const er = $("zd-era"); er.append(new Option("Wybierz…", "")); ERY.forEach(e => er.append(new Option(`${e.name} (${e.years})`, e.id)));
+    sz.addEventListener("change", () => { if (sz.value && !er.dataset.touched) er.value = eraForSeason(sz.value); });
+    er.addEventListener("change", () => { er.dataset.touched = "1"; });
+    const dl = $("os-dolaczyl"); dl.append(new Option("Nie wiem", "")); SEZONY.forEach(s => dl.append(new Option(s, s)));
+    const od = $("os-odszedl"); od.append(new Option("Nie wiem", "")); od.append(new Option("Jest do dziś", "do-dzis")); od.append(new Option("Przychodzi i odchodzi", "przychodzi-odchodzi")); SEZONY.forEach(s => od.append(new Option("Odszedł w sezonie " + s, s)));
+    pills("zd-rodzaj", "rodzaj", RODZAJE, true);
+    pills("zd-wydzwiek", "wydzwiek", WYDZWIEK, true);
+    pills("zd-serial", "serial", SERIAL, true);
+    $("f-rodzaj").append(...Object.entries(RODZAJ_KROTKO).map(([v, l]) => new Option(l, v)));
+    $("f-era").append(...ERY.map(e => new Option(e.name, e.id)));
+    ["f-rodzaj", "f-era", "f-osoba"].forEach(id => $(id).addEventListener("change", renderTimeline));
+    document.querySelectorAll(".count").forEach(c => {
+      const t = $(c.dataset.for), upd = () => c.textContent = `${t.value.length} / ${t.maxLength}`;
+      t.addEventListener("input", upd); upd();
+    });
+  }
+
+  // Szkic formularza w tej przeglądarce, żeby długi opis nie przepadł przy odświeżeniu.
+  function draft(form, key) {
+    const dump = () => { try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(new FormData(form)))); } catch (e) {} };
+    form.addEventListener("input", dump); form.addEventListener("change", dump);
+    try {
+      const d = JSON.parse(localStorage.getItem(key) || "null");
+      if (d) for (const [k, v] of Object.entries(d)) {
+        const f = form.elements[k];
+        if (!f) continue;
+        if (f instanceof RadioNodeList) [...f].forEach(r => r.checked = r.value === v); else f.value = v;
+      }
+    } catch (e) {}
+    form.querySelectorAll("textarea").forEach(t => t.dispatchEvent(new Event("input")));
+    return () => { try { localStorage.removeItem(key); } catch (e) {} };
+  }
+
+  function wire(formId, coll, draftKey, doneId, check) {
+    const form = $(formId), msg = form.querySelector(".msg"), btn = form.querySelector(".go");
+    const clearDraft = draft(form, draftKey);
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      msg.textContent = "";
+      const data = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v).trim()]));
+      const problem = check(data);
+      if (problem) { msg.textContent = problem; return; }
+      for (const k of Object.keys(data)) if (data[k] === "") delete data[k];
+      data.konto = me ? me.login : "";
+      btn.disabled = true; btn.textContent = "Wysyłam…";
+      try {
+        await create(coll, data);
+        clearDraft(); form.reset(); delete $("zd-era").dataset.touched;
+        form.querySelectorAll("textarea").forEach(t => t.dispatchEvent(new Event("input")));
+        prefillAuthor();
+        form.hidden = true; $(doneId).hidden = false; $(doneId).scrollIntoView({ block: "center" });
+      } catch (err) {
+        msg.textContent = "Nie udało się wysłać. Sprawdź internet i spróbuj jeszcze raz – nic nie zginęło, tekst jest zapisany.";
+      } finally { btn.disabled = false; btn.textContent = coll === "zdarzenia" ? "Wyślij zgłoszenie" : "Wyślij"; }
+    });
+  }
+  document.querySelectorAll("[data-again]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.again; $("form-" + k).hidden = false; $("done-" + k).hidden = true; scrollTo({ top: 0 });
+  }));
+
+  const checkEvent = d => {
+    if (d.tytul.length < 3) return "Wpisz tytuł wydarzenia.";
+    if (!d.sezon) return "Wybierz sezon (choćby w przybliżeniu).";
+    if (!d.era) return "Wybierz erę.";
+    if (!d.rodzaj) return "Wybierz rodzaj wydarzenia.";
+    if (d.opis.length < 10) return "Opisz, co się stało (choć kilka zdań).";
+    if (!d.wydzwiek) return "Zaznacz, czy to dobre, złe czy mieszane wspomnienie.";
+    if (!d.serial) return "Zaznacz, czy to może trafić do serialu.";
+    if (d.link && !/^https:\/\/.+/.test(d.link)) return "Link musi zaczynać się od https://";
+    if (!d.autor) return "Wpisz, kto zgłasza.";
+  };
+  const checkPerson = d => {
+    if (d.imie.length < 2) return "Wpisz imię albo ksywkę.";
+    if (!d.autor) return "Wpisz, kto dopisuje.";
+  };
+  function prefillAuthor() {
+    if (!me) return;
+    const n = IMIONA[me.login] || me.login.charAt(0).toUpperCase() + me.login.slice(1);
+    ["zd-autor", "os-autor"].forEach(id => { if (!$(id).value) $(id).value = n; });
+  }
+
+  // ---------- Start ----------
+  setupSelects();
+  wire("form-zd", "zdarzenia", "kronika-szkic-zdarzenie", "done-zd", checkEvent);
+  wire("form-os", "osoby", "kronika-szkic-osoba", "done-os", checkPerson);
+
+  function enter() {
+    $("gate").hidden = true;
+    document.body.classList.remove("locked");
+    prefillAuthor();
+    route();
+    loadAll();
+  }
+  const saved = load();
+  if (saved && AUTH.users[saved.login]) verify(saved.login, saved.pass).then(() => { me = saved; enter(); }).catch(() => document.body.classList.add("locked"));
+  else document.body.classList.add("locked");
+})();
+</script>
+</body>
+</html>
