@@ -1,12 +1,12 @@
-// Familiada Granatu: lobby, przyciski zgłoszeń i tablica na żywo (Firebase Auth + Firestore).
-// Gracze logują się anonimowo; prowadzący to konto anonimowe dopisane do „familiada_host”.
-// Odpowiedzi z punktami leżą w „familiada_pytania”, którą czyta tylko prowadzący –
-// na wspólną tablicę trafiają dopiero po odkryciu.
+// Familiada Granatu: lobby, przyciski zgłoszeń, odpowiedzi wpisywane przez graczy i tablica na żywo.
+// Firebase Auth (anonimowo) + Firestore. Prowadzący to konto anonimowe dopisane do „familiada_host”.
+// Odpowiedzi z punktami leżą w „familiada_pytania”, którą czyta tylko prowadzący – dlatego
+// sprawdzanie odpowiedzi (silnik gry) działa w przeglądarce prowadzącego, która musi być otwarta.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, connectFirestoreEmulator, doc, collection, query, orderBy, onSnapshot,
-  getDoc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp, increment, deleteField,
+  getDoc, getDocs, setDoc, updateDoc, deleteDoc, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -18,11 +18,15 @@ if (EMU) { connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings:
 
 const GRA = doc(db, "familiada", "gra");
 const GRACZE = collection(db, "familiada", "gra", "gracze");
-const buzzDoc = runda => doc(db, "familiada", "gra", "buzz", String(runda));
+const buzzDoc = (runda, proba) => doc(db, "familiada", "gra", "buzz", `${runda}-${proba}`);
+const odpDoc = (runda, krok) => doc(db, "familiada", "gra", "odp", `${runda}-${krok}`);
+// Etapy rundy, w których ktoś wpisuje odpowiedź.
+const ODPOWIADANIE = ["pojedynek1", "pojedynek2", "gra", "kradziez"];
 const NOWA_GRA = {
   faza: "lobby", druzyny: { A: "Granatowi", B: "Czerwoni" }, wynik: { A: 0, B: 0 },
-  runda: 0, pytanie: "", sloty: 0, odkryte: {}, mnoznik: 1, pula: 0, przyznano: "",
-  buzz: false, kontrola: "", bledy: 0, kradziez: false, uzyte: [], blysk: { typ: "", n: 0 },
+  runda: 0, pytanieId: "", pytanie: "", sloty: 0, odkryte: {}, mnoznik: 1, pula: 0, przyznano: "",
+  etap: "", proba: 0, krok: 0, kto: "", ktoUid: "", ktoImie: "", czas: 20,
+  kontrola: "", bledy: 0, p1: null, ostatnia: null, uzyte: [], blysk: { typ: "", n: 0 },
 };
 const IMIONA = { rafal: "Rafał", gadom: "Gadom" };
 
@@ -31,11 +35,12 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const btn = (text, cls, fn) => { const b = el("button", "fb " + (cls || ""), text); b.type = "button"; b.addEventListener("click", fn); return b; };
 const who = () => { try { return JSON.parse(sessionStorage.getItem("me") || "null")?.login || null; } catch (e) { return null; } };
 const imie = l => IMIONA[l] || l.charAt(0).toUpperCase() + l.slice(1);
+const inna = d => (d === "A" ? "B" : "A");
 const fail = e => { console.error(e); status("Coś poszło nie tak: " + (e.code || e.message) + ". Odśwież stronę.", true); };
 const status = (t, err) => { const s = $("fam-status"); s.textContent = t || ""; s.hidden = !t; s.classList.toggle("err", !!err); };
 
 let uid = null, login = null, host = false, stan = null, gracze = [], buzz = null, bank = [];
-let started = false, unsubBuzz = null, lastBlysk = null, lastOdkryte = null;
+let started = false, lastBlysk = null, lastOdkryte = null, turnKey = "", turnStart = 0;
 
 // ---------- Dźwięki (Web Audio, bez plików) ----------
 let ac = null;
@@ -54,6 +59,7 @@ function tone(freqs, dur, type = "square", gain = 0.12) {
 const sndBuzz = () => tone([880, 1320], 0.12, "square", 0.1);
 const sndOk = () => tone([660, 880, 1100], 0.11, "triangle", 0.2);
 const sndX = () => tone([110, 98], 0.35, "sawtooth", 0.16);
+const sndTick = () => tone([1500], 0.05, "square", 0.05);
 addEventListener("pointerdown", unlockAudio, { once: true });
 
 // ---------- Start (po zalogowaniu na stronie i wejściu w zakładkę) ----------
@@ -70,29 +76,43 @@ function maybeStart() {
     if (host) {
       try { bank = (await getDocs(query(collection(db, "familiada_pytania"), orderBy("nr")))).docs.map(d => ({ id: d.id, ...d.data() })); } catch (e) { fail(e); }
     }
-    onSnapshot(GRA, s => { stan = s.exists() ? s.data() : null; status(""); watchBuzz(); render(); effects(); }, fail);
+    onSnapshot(GRA, s => { stan = s.exists() ? s.data() : null; status(""); onState(); }, fail);
     onSnapshot(GRACZE, s => { gracze = s.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, fail);
   });
 }
 addEventListener("hashchange", maybeStart);
 addEventListener("granat:login", maybeStart);
 maybeStart();
+$("fam-form").addEventListener("submit", e => { e.preventDefault(); wyslij(); });
+setInterval(tickTimer, 250);
 
-function watchBuzz() {
-  if (!stan) return;
-  const r = stan.runda;
-  if (watchBuzz.r === r) return;
-  watchBuzz.r = r;
-  if (unsubBuzz) unsubBuzz();
-  buzz = null;
-  let first = true;
-  unsubBuzz = onSnapshot(buzzDoc(r), s => {
-    const prev = buzz;
-    buzz = s.exists() ? s.data() : null;
-    if (buzz && !first && (!prev || prev.uid !== buzz.uid)) sndBuzz();
-    first = false;
-    render();
-  }, fail);
+// Nasłuch zgłoszeń (przycisk) i odpowiedzi dla bieżącej rundy/kroku.
+let buzzKey = "", unsubBuzz = null, odpKey = "", unsubOdp = null;
+function onState() {
+  if (stan) {
+    const bk = `${stan.runda}-${stan.proba || 0}`;
+    if (bk !== buzzKey) {
+      buzzKey = bk; if (unsubBuzz) unsubBuzz(); buzz = null;
+      let first = true;
+      unsubBuzz = onSnapshot(buzzDoc(stan.runda, stan.proba || 0), s => {
+        const prev = buzz; buzz = s.exists() ? s.data() : null;
+        if (buzz && !first && !prev) sndBuzz();
+        first = false;
+        if (host) engineBuzz();
+        render();
+      }, fail);
+    }
+    const tk = `${stan.runda}-${stan.krok || 0}-${stan.etap}`;
+    if (tk !== turnKey) { turnKey = tk; turnStart = Date.now(); $("fam-input").value = ""; $("fam-form-msg").textContent = ""; }
+    if (host) {
+      const ok = `${stan.runda}-${stan.krok || 0}`;
+      if (ok !== odpKey) {
+        odpKey = ok; if (unsubOdp) unsubOdp();
+        unsubOdp = onSnapshot(odpDoc(stan.runda, stan.krok || 0), s => { if (s.exists()) engineAnswer(s.data(), ok); }, fail);
+      }
+    }
+  }
+  render(); effects();
 }
 
 // Animacje i dźwięki tylko przy zmianach (nie przy pierwszym wczytaniu).
@@ -104,7 +124,7 @@ function effects() {
   const b = stan.blysk || {};
   if (lastBlysk !== null && b.n && b.n !== lastBlysk && b.typ === "x") {
     sndX();
-    const x = $("fam-bigx"); x.hidden = false; x.textContent = "✕".repeat(Math.min(3, stan.bledy || 1));
+    const x = $("fam-bigx"); x.hidden = false; x.textContent = "✕".repeat(Math.max(1, Math.min(3, b.ile || 1)));
     clearTimeout(effects.t); effects.t = setTimeout(() => x.hidden = true, 1300);
   }
   lastBlysk = b.n || 0;
@@ -112,6 +132,11 @@ function effects() {
 
 // ---------- Akcje gracza ----------
 const ja = () => gracze.find(g => g.uid === uid);
+const mogeOdpowiadac = () => {
+  const g = ja();
+  return !!(stan && g && ODPOWIADANIE.includes(stan.etap) && g.druzyna === stan.kto && (!stan.ktoUid || stan.ktoUid === uid) && pozostalo() > 0);
+};
+const pozostalo = () => (stan ? Math.max(0, (stan.czas || 20) - (Date.now() - turnStart) / 1000) : 0);
 async function dolacz(d) {
   unlockAudio();
   try { await setDoc(doc(GRACZE, uid), { imie: imie(login), druzyna: d }); } catch (e) { fail(e); }
@@ -119,60 +144,175 @@ async function dolacz(d) {
 async function zglos() {
   unlockAudio();
   const g = ja();
-  if (!g || !stan?.buzz || buzz) return;
-  try { await setDoc(buzzDoc(stan.runda), { uid, imie: g.imie, druzyna: g.druzyna, t: serverTimestamp() }); }
+  if (!g || stan?.etap !== "buzz" || buzz) return;
+  try { await setDoc(buzzDoc(stan.runda, stan.proba || 0), { uid, imie: g.imie, druzyna: g.druzyna, t: serverTimestamp() }); }
   catch (e) { /* ktoś był szybszy – reguły nie pozwalają nadpisać */ }
 }
+async function wyslij() {
+  unlockAudio();
+  const tekst = $("fam-input").value.trim().slice(0, 60);
+  const msg = $("fam-form-msg");
+  if (!tekst || !mogeOdpowiadac()) return;
+  const g = ja();
+  $("fam-send").disabled = true;
+  try {
+    await setDoc(odpDoc(stan.runda, stan.krok || 0), { uid, imie: g.imie, druzyna: g.druzyna, tekst, t: serverTimestamp() });
+    msg.textContent = "Wysłane – sprawdzamy…";
+  } catch (e) { msg.textContent = "Ktoś z drużyny odpowiedział szybciej."; }
+  finally { $("fam-send").disabled = false; }
+}
 
-// ---------- Akcje prowadzącego ----------
+// ---------- Sprawdzanie odpowiedzi ----------
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+// Indeks trafionej, jeszcze nieodkrytej odpowiedzi albo -1.
+function dopasuj(tekst) {
+  const q = pyt(), t = norm(tekst || "");
+  if (!q || t.length < 2) return -1;
+  for (const [i, a] of q.odpowiedzi.entries()) {
+    if (stan.odkryte?.[i]) continue;
+    const warianty = [...a.t.split("/"), ...(a.alias || [])].map(norm).filter(Boolean);
+    for (const w of warianty) {
+      if (t === w) return i;
+      if (Math.min(t.length, w.length) >= 4 && (t.includes(w) || w.includes(t))) return i;
+      const tol = w.length >= 8 ? 2 : w.length >= 5 ? 1 : 0;
+      if (tol && lev(t, w) <= tol) return i;
+    }
+  }
+  return -1;
+}
+
+// ---------- Silnik gry (tylko w przeglądarce prowadzącego) ----------
 const upd = data => updateDoc(GRA, data).catch(fail);
 const pyt = () => bank.find(q => q.id === stan?.pytanieId);
+let handled = "";
+
+function engineBuzz() {
+  if (!stan || stan.etap !== "buzz" || !buzz) return;
+  upd({ etap: "pojedynek1", kto: buzz.druzyna, ktoUid: buzz.uid, ktoImie: buzz.imie, krok: (stan.krok || 0) + 1, ostatnia: null });
+}
+
+function engineAnswer(ans, key) {
+  if (!stan || handled === key || key !== `${stan.runda}-${stan.krok || 0}` || !ODPOWIADANIE.includes(stan.etap)) return;
+  handled = key;
+  rozstrzygnij(ans ? dopasuj(ans.tekst) : -1, ans);
+}
+
+// Upływ czasu = zła odpowiedź (prowadzący liczy z małym zapasem na opóźnienia).
+setInterval(() => {
+  if (!host || !stan || !ODPOWIADANIE.includes(stan.etap)) return;
+  const key = `${stan.runda}-${stan.krok || 0}`;
+  if (handled !== key && (Date.now() - turnStart) / 1000 > (stan.czas || 20) + 1.5) { handled = key; rozstrzygnij(-1, null); }
+}, 400);
+
+// Główna logika rundy: idx = trafiona odpowiedź (-1 = pudło albo koniec czasu).
+function rozstrzygnij(idx, ans, opts = {}) {
+  const q = pyt(); if (!q) return;
+  const s = stan, d = {}, m = s.mnoznik || 1;
+  const kto = s.kto, imieOdp = ans?.imie || s.ktoImie || s.druzyny?.[kto] || "";
+  let pula = s.pula || 0, odkryte = { ...(s.odkryte || {}) };
+  if (idx >= 0) { const a = q.odpowiedzi[idx]; odkryte[idx] = { t: a.t, p: a.p }; d["odkryte." + idx] = { t: a.t, p: a.p }; pula += a.p * m; d.pula = pula; }
+  d.ostatnia = { imie: imieOdp, druzyna: kto, tekst: opts.reczne ? "(decyzja prowadzącego)" : ans ? ans.tekst : "(czas minął)", ok: idx >= 0, idx };
+  d.krok = (s.krok || 0) + 1;
+  const wszystkie = Object.keys(odkryte).length >= q.odpowiedzi.length;
+  const przyznaj = team => { d["wynik." + team] = (s.wynik?.[team] || 0) + pula; d.przyznano = team; d.etap = "po"; d.kto = ""; d.ktoUid = ""; Object.assign(d, reszta(q, odkryte)); };
+  const krzyzyk = ile => { d.blysk = { typ: "x", n: Date.now(), ile }; };
+
+  if (s.etap === "pojedynek1") {
+    if (idx === 0 || (idx >= 0 && wszystkie)) { d.kontrola = kto; d.etap = "gra"; d.kto = kto; d.ktoUid = ""; d.ktoImie = ""; d.bledy = 0; if (wszystkie) przyznaj(kto); }
+    else { if (idx < 0) krzyzyk(1); d.p1 = { druzyna: kto, idx }; d.etap = "pojedynek2"; d.kto = inna(kto); d.ktoUid = ""; d.ktoImie = ""; }
+  } else if (s.etap === "pojedynek2") {
+    const p1 = s.p1 || { idx: -1, druzyna: inna(kto) };
+    if (idx < 0) krzyzyk(1);
+    let wygrany = null;
+    if (idx >= 0 && (p1.idx < 0 || idx < p1.idx)) wygrany = kto;
+    else if (p1.idx >= 0) wygrany = p1.druzyna;
+    if (wygrany) { d.kontrola = wygrany; d.etap = "gra"; d.kto = wygrany; d.ktoUid = ""; d.ktoImie = ""; d.bledy = 0; if (wszystkie) przyznaj(wygrany); }
+    else { d.etap = "buzz"; d.proba = (s.proba || 0) + 1; d.kto = ""; d.ktoUid = ""; d.ktoImie = ""; d.p1 = null; } // oba pudła – nowe zgłoszenia
+  } else if (s.etap === "gra") {
+    if (idx >= 0) { if (wszystkie) przyznaj(s.kontrola); }
+    else {
+      const b = Math.min(3, (s.bledy || 0) + 1);
+      d.bledy = b; krzyzyk(b);
+      if (b >= 3) { d.etap = "kradziez"; d.kto = inna(s.kontrola); d.ktoUid = ""; d.ktoImie = ""; }
+    }
+  } else if (s.etap === "kradziez") {
+    if (idx < 0) krzyzyk(1);
+    przyznaj(idx >= 0 ? kto : s.kontrola);
+  }
+  upd(d);
+}
+// Po rozstrzygnięciu rundy odkrywamy resztę odpowiedzi (już bez punktów).
+function reszta(q, odkryte) {
+  const d = {};
+  q.odpowiedzi.forEach((a, i) => { if (!odkryte[i]) d["odkryte." + i] = { t: a.t, p: a.p }; });
+  return d;
+}
+
 const H = {
-  nowa: () => confirm("Zacząć nową grę? Wyniki zostaną wyzerowane (gracze zostają).") && setDoc(GRA, { ...NOWA_GRA, druzyny: stan?.druzyny || NOWA_GRA.druzyny }).catch(fail),
+  nowa: () => confirm("Zacząć nową grę? Wyniki zostaną wyzerowane (gracze zostają).") && setDoc(GRA, { ...NOWA_GRA, druzyny: stan?.druzyny || NOWA_GRA.druzyny, czas: stan?.czas || 20 }).catch(fail),
   start: () => upd({ faza: "gra" }),
-  koniec: () => confirm("Zakończyć grę i pokazać zwycięzcę?") && upd({ faza: "koniec", buzz: false }),
+  koniec: () => confirm("Zakończyć grę i pokazać zwycięzcę?") && upd({ faza: "koniec", etap: "", kto: "" }),
   pytanie: (id, m) => {
     const q = bank.find(x => x.id === id);
     if (!q) return;
     upd({ faza: "gra", runda: (stan.runda || 0) + 1, pytanieId: q.id, pytanie: q.pytanie, sloty: q.odpowiedzi.length, odkryte: {},
-      mnoznik: m, pula: 0, przyznano: "", buzz: true, kontrola: "", bledy: 0, kradziez: false, uzyte: [...new Set([...(stan.uzyte || []), q.id])] });
+      mnoznik: m, pula: 0, przyznano: "", etap: "buzz", proba: 0, kto: "", ktoUid: "", ktoImie: "", kontrola: "", bledy: 0, p1: null, ostatnia: null,
+      uzyte: [...new Set([...(stan.uzyte || []), q.id])] });
   },
-  odkryj: i => {
-    const a = pyt()?.odpowiedzi[i];
-    if (!a || stan.odkryte?.[i]) return;
-    const d = { ["odkryte." + i]: { t: a.t, p: a.p } };
-    if (!stan.przyznano) d.pula = increment(a.p * (stan.mnoznik || 1));
-    upd(d);
+  // Ręczne poprawki: uznanie odpowiedzi albo pudła w bieżącym kroku (gdy automat się pomylił).
+  uznaj: i => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(i, null, { reczne: true }); } else odkryjRecznie(i); },
+  pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, null, { reczne: true }); } },
+  cofnijBlad: () => {
+    const b = Math.max(0, (stan.bledy || 0) - 1);
+    upd(stan.etap === "kradziez" ? { bledy: b, etap: "gra", kto: stan.kontrola, krok: (stan.krok || 0) + 1 } : { bledy: b });
   },
-  reszta: () => {
-    const q = pyt(); if (!q) return;
-    const d = {}; q.odpowiedzi.forEach((a, i) => { if (!stan.odkryte?.[i]) d["odkryte." + i] = { t: a.t, p: a.p }; });
-    if (Object.keys(d).length) upd(d);
-  },
-  blad: () => {
-    const b = Math.min(3, (stan.bledy || 0) + 1);
-    upd({ bledy: b, kradziez: b >= 3 && !!stan.kontrola, blysk: { typ: "x", n: Date.now() } });
-  },
-  kontrola: d => upd({ kontrola: d, bledy: 0, kradziez: false, buzz: false }),
-  przyznaj: d => {
-    if (stan.przyznano) return;
-    upd({ ["wynik." + d]: increment(stan.pula || 0), przyznano: d, buzz: false });
-  },
-  otworz: () => upd({ buzz: true }),
-  resetBuzz: async () => { try { await deleteDoc(buzzDoc(stan.runda)); await upd({ buzz: true }); } catch (e) { fail(e); } },
+  przyznaj: d => { if (!stan.przyznano) upd({ ["wynik." + d]: (stan.wynik?.[d] || 0) + (stan.pula || 0), przyznano: d, etap: "po", kto: "", ...reszta(pyt(), stan.odkryte || {}) }); },
+  ponowBuzz: () => upd({ etap: "buzz", proba: (stan.proba || 0) + 1, kto: "", ktoUid: "", ktoImie: "", p1: null }),
+  czas: s => upd({ czas: s }),
   nazwy: () => upd({ druzyny: { A: $("fh-nA").value.trim().slice(0, 30) || "Drużyna A", B: $("fh-nB").value.trim().slice(0, 30) || "Drużyna B" } }),
-  przenies: g => updateDoc(doc(GRACZE, g.uid), { druzyna: g.druzyna === "A" ? "B" : "A" }).catch(fail),
+  przenies: g => updateDoc(doc(GRACZE, g.uid), { druzyna: inna(g.druzyna) }).catch(fail),
   usun: g => confirm(`Usunąć ${g.imie} z gry?`) && deleteDoc(doc(GRACZE, g.uid)).catch(fail),
   utworz: () => setDoc(GRA, NOWA_GRA).catch(fail),
 };
+function odkryjRecznie(i) {
+  const a = pyt()?.odpowiedzi[i];
+  if (!a || stan.odkryte?.[i]) return;
+  const d = { ["odkryte." + i]: { t: a.t, p: a.p } };
+  if (!stan.przyznano) d.pula = (stan.pula || 0) + a.p * (stan.mnoznik || 1);
+  upd(d);
+}
+
+// ---------- Licznik czasu ----------
+function tickTimer() {
+  const box = $("fam-timer"), form = $("fam-form");
+  const active = stan && stan.faza === "gra" && ODPOWIADANIE.includes(stan.etap);
+  box.hidden = !active;
+  const moge = mogeOdpowiadac();
+  if (form.hidden === moge) { form.hidden = !moge; if (moge) { $("fam-form-msg").textContent = ""; $("fam-input").focus({ preventScroll: true }); } }
+  if (!active) return;
+  const left = pozostalo(), total = stan.czas || 20;
+  box.querySelector("b").textContent = Math.ceil(left);
+  box.querySelector("i").style.width = (100 * left / total) + "%";
+  box.classList.toggle("low", left <= 5);
+  const sec = Math.ceil(left);
+  if (moge && sec <= 5 && sec > 0 && sec !== tickTimer.last) sndTick();
+  tickTimer.last = sec;
+}
 
 // ---------- Wyświetlanie ----------
 function render() {
-  const root = $("fam-app");
+  const root = $("fam-app"), lob = $("fam-lobby");
   if (!root || !uid) return;
   const me = ja();
   const nazwa = d => stan?.druzyny?.[d] || d;
-  root.replaceChildren();
+  root.replaceChildren(); lob.replaceChildren();
 
   if (!stan) {
     root.append(el("p", "fam-note", host ? "Gra jeszcze nie istnieje." : "Prowadzący jeszcze nie otworzył gry. Zajrzyj za chwilę."));
@@ -198,7 +338,6 @@ function render() {
   } else if (stan.faza === "lobby" || !stan.pytanie) {
     root.append(el("p", "fam-note", stan.faza === "lobby" ? "Lobby – czekamy, aż prowadzący zacznie grę." : "Czekamy na pierwsze pytanie…"));
   } else {
-    // Pytanie i tablica odpowiedzi
     const board = el("div", "fam-board");
     board.append(el("p", "fam-round", `Runda ${stan.runda}` + (stan.mnoznik > 1 ? ` · punkty ×${stan.mnoznik}` : "")), el("h3", "fam-q", stan.pytanie));
     const ol = el("ol", "fam-slots");
@@ -211,25 +350,38 @@ function render() {
     board.append(ol);
     const strikes = el("div", "fam-strikes");
     for (let i = 0; i < 3; i++) strikes.append(el("span", i < (stan.bledy || 0) ? "on" : "", "✕"));
-    if (stan.kontrola) strikes.prepend(el("small", "", `Gra: ${nazwa(stan.kontrola)}` + (stan.kradziez ? ` · kradnie: ${nazwa(stan.kontrola === "A" ? "B" : "A")}` : "")));
     board.append(strikes);
     if (stan.przyznano) board.append(el("p", "fam-award", `Pula dla: ${nazwa(stan.przyznano)}`));
     root.append(board);
 
-    // Zgłoszenia
-    if (buzz) {
-      const w = el("div", `fam-first t${buzz.druzyna}`);
-      w.append(el("small", "", "Pierwszy zgłosił się"), el("b", "", buzz.imie), el("span", "", nazwa(buzz.druzyna)));
-      root.append(w);
-    } else if (me) {
-      const b = btn(stan.buzz ? "Zgłaszam się!" : "Czekaj na sygnał…", "fam-buzz", zglos);
-      b.disabled = !stan.buzz;
-      root.append(b);
+    // Kto teraz odpowiada / co się dzieje
+    const info = el("div", "fam-turn" + (stan.kto ? " t" + stan.kto : ""));
+    const kto = stan.kto ? nazwa(stan.kto) : "";
+    const tekst = {
+      buzz: ["Kto pierwszy?", "Naciśnij przycisk, żeby odpowiadać."],
+      pojedynek1: ["Pojedynek", `Odpowiada ${stan.ktoImie} (${kto}) – trzeba trafić najwyżej punktowaną odpowiedź.`],
+      pojedynek2: ["Szansa dla rywali", `${kto}: wpiszcie odpowiedź wyżej punktowaną niż poprzednia, a przejmiecie pytanie.`],
+      gra: ["Gra drużyna", `${kto} odgaduje kolejne odpowiedzi (błędy: ${stan.bledy || 0}/3).`],
+      kradziez: ["Kradzież!", `${kto} ma jedną szansę, żeby przejąć całą pulę (${stan.pula || 0} pkt).`],
+      po: ["Koniec rundy", `Pula trafiła do: ${nazwa(stan.przyznano)}. Czekamy na kolejne pytanie.`],
+    }[stan.etap];
+    if (tekst) { info.append(el("small", "", tekst[0]), el("span", "", tekst[1])); root.append(info); }
+
+    // Ostatnia odpowiedź
+    if (stan.ostatnia) {
+      const o = stan.ostatnia;
+      const last = el("div", "fam-last " + (o.ok ? "ok" : "bad"));
+      last.append(el("span", "", `${o.imie}:`), el("b", "", `„${o.tekst}”`), el("i", "", o.ok ? "✓" : "✕"));
+      root.append(last);
+    }
+
+    if (stan.etap === "buzz" && me) {
+      if (buzz) { const w = el("div", `fam-first t${buzz.druzyna}`); w.append(el("small", "", "Pierwszy zgłosił się"), el("b", "", buzz.imie), el("span", "", nazwa(buzz.druzyna))); root.append(w); }
+      else root.append(btn("Zgłaszam się!", "fam-buzz", zglos));
     }
   }
 
   // Lobby: drużyny i gracze
-  const lobby = el("div", "fam-lobby");
   for (const d of ["A", "B"]) {
     const col = el("div", `fam-col t${d}`);
     col.append(el("h4", "", nazwa(d)));
@@ -239,10 +391,10 @@ function render() {
     col.append(ul);
     if (!me && stan.faza !== "koniec") col.append(btn("Dołącz", "gold", () => dolacz(d)));
     else if (me && me.druzyna !== d && stan.faza === "lobby") col.append(btn("Przejdź tutaj", "", () => dolacz(d)));
-    lobby.append(col);
+    lob.append(col);
   }
-  root.append(lobby);
-  if (!me) root.append(el("p", "fam-note", "Wybierz drużynę, żeby grać."));
+  if (!me) lob.append(el("p", "fam-note", "Wybierz drużynę, żeby grać."));
+  tickTimer();
   hostPanel();
 }
 
@@ -259,41 +411,47 @@ function hostPanel() {
     return;
   }
   if (!stan) return;
+  box.append(el("p", "fam-note", "Nie zamykaj tej strony w trakcie gry – to ona sprawdza odpowiedzi graczy."));
   const row = (...kids) => { const r = el("div", "fh-row"); r.append(...kids); box.append(r); return r; };
 
   // Pytanie
   const sel = el("select"); sel.id = "fh-q";
-  bank.forEach(q => { const o = new Option(`${q.nr}. ${q.pytanie}${(stan.uzyte || []).includes(q.id) ? " ✓" : ""}`, q.id); sel.append(o); });
+  bank.forEach(q => sel.append(new Option(`${q.nr}. ${q.pytanie}${(stan.uzyte || []).includes(q.id) ? " ✓" : ""}`, q.id)));
   const next = bank.find(q => !(stan.uzyte || []).includes(q.id)); if (next) sel.value = next.id;
   if (keep.q && bank.some(q => q.id === keep.q) && !(stan.uzyte || []).includes(keep.q)) sel.value = keep.q;
   const mult = el("select"); mult.id = "fh-m"; [1, 2, 3].forEach(m => mult.append(new Option("×" + m, m)));
   if (keep.m) mult.value = keep.m;
-  box.append(el("h4", "", "1. Pytanie"));
+  box.append(el("h4", "", "Pytanie"));
   row(sel, mult, btn("Pokaż pytanie", "gold", () => H.pytanie(sel.value, +mult.value)));
   if (!bank.length) box.append(el("p", "fam-note", "Brak pytań w bazie – poproś Claude'a o wgranie."));
 
-  // Odpowiedzi
+  // Odpowiedzi i poprawki
   const q = pyt();
   if (q && stan.pytanie) {
-    box.append(el("h4", "", "2. Odpowiedzi (kliknij, żeby odkryć)"));
+    const odp = ODPOWIADANIE.includes(stan.etap);
+    box.append(el("h4", "", odp ? "Odpowiedzi – kliknij, żeby uznać bieżącą odpowiedź" : "Odpowiedzi"));
     const list = el("div", "fh-answers");
     q.odpowiedzi.forEach((a, i) => {
-      const b = btn(`${i + 1}. ${a.t} · ${a.p}`, stan.odkryte?.[i] ? "done" : "", () => H.odkryj(i));
+      const b = btn(`${i + 1}. ${a.t} · ${a.p}`, stan.odkryte?.[i] ? "done" : "", () => H.uznaj(i));
       b.disabled = !!stan.odkryte?.[i];
       list.append(b);
     });
     box.append(list);
-    box.append(el("h4", "", "3. Przebieg rundy"));
-    row(btn(stan.buzz ? "Przyciski otwarte" : "Otwórz przyciski", "", H.otworz), btn("Reset zgłoszenia", "", H.resetBuzz));
-    row(btn(`Gra: ${stan.druzyny.A}`, stan.kontrola === "A" ? "gold" : "", () => H.kontrola("A")), btn(`Gra: ${stan.druzyny.B}`, stan.kontrola === "B" ? "gold" : "", () => H.kontrola("B")), btn("Błąd ✕", "red", H.blad));
-    const pa = btn(`Pula (${stan.pula || 0}) → ${stan.druzyny.A}`, "gold", () => H.przyznaj("A")), pb = btn(`Pula (${stan.pula || 0}) → ${stan.druzyny.B}`, "gold", () => H.przyznaj("B"));
+    box.append(el("h4", "", "Poprawki"));
+    const pz = btn("Uznaj jako pudło ✕", "red", H.pudlo); pz.disabled = !odp;
+    const cb = btn("Cofnij błąd", "", H.cofnijBlad); cb.disabled = !(stan.bledy > 0);
+    row(pz, cb, btn("Ponów zgłoszenia", "", H.ponowBuzz));
+    const pa = btn(`Pula → ${stan.druzyny.A}`, "", () => H.przyznaj("A")), pb = btn(`Pula → ${stan.druzyny.B}`, "", () => H.przyznaj("B"));
     pa.disabled = pb.disabled = !!stan.przyznano;
-    row(pa, pb, btn("Pokaż resztę odpowiedzi", "", H.reszta));
+    row(pa, pb);
   }
 
   // Gra i drużyny
   box.append(el("h4", "", "Gra"));
+  const czas = el("select"); [10, 15, 20, 30, 45].forEach(s => czas.append(new Option(`${s} s na odpowiedź`, s))); czas.value = stan.czas || 20;
+  czas.addEventListener("change", () => H.czas(+czas.value));
   row(btn("Start gry", stan.faza === "lobby" ? "gold" : "", H.start), btn("Zakończ grę", "", H.koniec), btn("Nowa gra (zeruj wyniki)", "red", H.nowa));
+  row(czas);
   const nA = el("input"); nA.id = "fh-nA"; nA.value = stan.druzyny.A; nA.maxLength = 30;
   const nB = el("input"); nB.id = "fh-nB"; nB.value = stan.druzyny.B; nB.maxLength = 30;
   for (const [k, inp] of [["nA", nA], ["nB", nB]]) if (keep[k] && keep[k] === focused) { inp.value = keep[k].value; queueMicrotask(() => inp.focus()); }
