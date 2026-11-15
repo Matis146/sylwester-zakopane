@@ -329,6 +329,53 @@
   .gate-title { font-size: clamp(2.4rem, 11vw, 3.4rem); }
   .gate-title span { color: var(--gold); }
   .gate .vault { box-shadow: 0 30px 70px rgba(0, 0, 0, .5); }
+  /* GRANAT X (parodia Twittera) */
+  .gx { padding-block: 22px 8px; background: #05091a; border-bottom: 1px solid var(--line); }
+  .gx .wrap { max-width: 640px; }
+  .gx-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .gx-logo { font-family: var(--f-display); font-weight: 900; font-size: 1.7rem; text-transform: uppercase; letter-spacing: 1px; }
+  .gx-logo b { color: var(--gold); }
+  .gx-sub { font-family: var(--f-mono); font-size: .66rem; letter-spacing: 1px; text-transform: uppercase; color: var(--mist); }
+  .gx-feed { display: grid; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--night); }
+  .gx-post { display: grid; grid-template-columns: 44px 1fr; gap: 10px; padding: 14px 14px 10px; border-bottom: 1px solid var(--line); min-width: 0; }
+  .gx-av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 1.35rem; background: var(--panel); border: 1px solid var(--line); }
+  .gx-body { min-width: 0; display: grid; gap: 8px; }
+  .gx-head { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+  .gx-head b { font-weight: 700; }
+  .gx-v { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border-radius: 50%; background: var(--gold); color: var(--ink); font-size: .62rem; font-weight: 900; vertical-align: 1px; }
+  .gx-h { color: var(--mist); font-size: .88rem; }
+  .gx-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; }
+  .gx-poll { border: 1px solid var(--line); border-radius: 14px; padding: 10px; display: grid; gap: 6px; }
+  .gx-poll.fake { background: rgba(224, 185, 92, .05); }
+  .gx-poll-t { margin: 0 0 2px; font-weight: 700; }
+  .gx-bar { --w: 0%; position: relative; display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 8px; overflow: hidden; background: rgba(255, 255, 255, .04); font: inherit; color: inherit; text-align: left; border: 0; }
+  .gx-bar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); background: rgba(224, 185, 92, .25); transition: width .4s; }
+  .gx-bar > * { position: relative; }
+  .gx-bar b { font-variant-numeric: tabular-nums; }
+  .gx-bar.opt { cursor: pointer; border: 1px solid var(--line); }
+  .gx-bar.opt:hover { border-color: var(--gold); }
+  .gx-bar.me { border-color: var(--gold); font-weight: 700; }
+  .gx-note { margin: 0; font-size: .78rem; color: var(--mist); }
+  .gx-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .gx-re { font: inherit; font-size: .95rem; display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--snow); cursor: pointer; touch-action: manipulation; }
+  .gx-re span { font-size: .8rem; color: var(--mist); font-variant-numeric: tabular-nums; }
+  .gx-re.on { border-color: var(--gold); background: rgba(224, 185, 92, .15); }
+  .gx-kom { margin-left: auto; }
+  .gx-comments { display: grid; gap: 8px; padding-top: 4px; }
+  .gx-c { background: var(--panel); border-radius: 12px; padding: 8px 10px; }
+  .gx-c-top { display: flex; gap: 8px; align-items: baseline; }
+  .gx-c-top span { font-size: .78rem; color: var(--mist); }
+  .gx-c p { margin: 2px 0 0; overflow-wrap: anywhere; }
+  .gx-del { margin-left: auto; font: inherit; font-size: .75rem; color: var(--mist); background: none; border: 0; cursor: pointer; text-decoration: underline; }
+  .gx-form { display: flex; gap: 6px; }
+  .gx-form input { flex: 1; min-width: 0; font: inherit; font-size: 16px; color: var(--snow); background: rgba(10, 17, 36, .7); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; }
+  .gx-form button { font: inherit; font-weight: 700; color: var(--ink); background: var(--gold); border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+  .gx-more { font: inherit; padding: 14px; background: none; border: 0; color: var(--gold-2); cursor: pointer; }
+  /* TAJNE */
+  .secret { padding-block: 80px 110px; background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .02) 0 18px, transparent 18px 36px); }
+  .secret-box { max-width: 520px; margin-inline: auto; text-align: center; border: 2px dashed var(--gold); border-radius: var(--r); padding: 40px 22px; display: grid; gap: 10px; justify-items: center; background: rgba(6, 11, 26, .8); }
+  .secret-lock { font-size: 3.4rem; animation: pop .6s ease-out both; }
+  .secret-stamp { margin: 14px 0 0; font-family: var(--f-mono); font-weight: 700; font-size: .78rem; letter-spacing: 3px; color: var(--red); border: 2px solid var(--red); padding: 6px 12px; transform: rotate(-4deg); }
   /* FAMILIADA */
   .fam-page { padding-block: 48px 96px; background: radial-gradient(90% 50% at 50% 0%, rgba(224, 185, 92, .12), transparent 60%); }
   .fam-page h2 { margin-bottom: 8px; }
@@ -557,6 +604,7 @@
       <a class="tab-btn" href="#zlota-pilka" data-tab="zp">Złota Piłka</a>
       <a class="tab-btn" href="#familiada" data-tab="odliczanie">Familiada</a>
       <a class="tab-btn" href="#sylwester" data-tab="sylwester" id="tab-btn-sylwester">Sylwester</a>
+      <a class="tab-btn" href="#tajne" data-tab="tajne">Tajne</a>
       <a class="tab-btn" href="kronika.html">Kronika</a>
       <button class="logout" id="logout" type="button" title="Wyloguj" aria-label="Wyloguj"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>Wyloguj</span></button>
     </nav>
@@ -565,6 +613,12 @@
 
 <main id="top">
 <div class="tab" id="tab-zp">
+  <section class="gx" aria-label="Granat X">
+    <div class="wrap">
+      <div class="gx-top"><span class="gx-logo">Granat <b>X</b></span><span class="gx-sub">Najświeższe wieści przed galą · wszystko zmyślone</span></div>
+      <div class="gx-feed" id="gx-feed"></div>
+    </div>
+  </section>
   <section class="zp-hero">
     <canvas id="zp-fx" aria-hidden="true"></canvas>
     <div class="wrap">
@@ -673,6 +727,19 @@
     </div>
   </section>
   <div class="fam-bigx" id="fam-bigx" hidden aria-hidden="true"></div>
+</div>
+<div class="tab" id="tab-tajne" hidden>
+  <section class="secret">
+    <div class="wrap">
+      <div class="secret-box">
+        <div class="secret-lock" aria-hidden="true">🔒</div>
+        <p class="kicker" style="justify-content:center">Ściśle tajne</p>
+        <h2>Nowa gra</h2>
+        <p class="lede" style="margin-inline:auto">Coś się szykuje. Szczegóły – wkrótce. Nikomu nie mów.</p>
+        <p class="secret-stamp">CLASSIFIED · GRANAT SZEROMINEK</p>
+      </div>
+    </div>
+  </section>
 </div>
 <div class="tab" id="tab-sylwester" hidden>
   <!-- HERO -->
@@ -1232,10 +1299,11 @@
 
   // ---------- Zakładki ----------
   function route() {
-    let tab = location.hash === "#sylwester" ? "sylwester" : /^#(familiada|odliczanie)$/.test(location.hash) ? "odliczanie" : "zp";
+    let tab = location.hash === "#sylwester" ? "sylwester" : location.hash === "#tajne" ? "tajne" : /^#(familiada|odliczanie)$/.test(location.hash) ? "odliczanie" : "zp";
     if (tab === "sylwester" && !$("tab-sylwester")) tab = "zp";
     $("tab-zp").hidden = tab !== "zp";
     $("tab-odliczanie").hidden = tab !== "odliczanie";
+    $("tab-tajne").hidden = tab !== "tajne";
     if ($("tab-sylwester")) $("tab-sylwester").hidden = tab !== "sylwester";
     document.querySelectorAll(".tab-btn").forEach(a => { if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     dispatchEvent(new Event("resize"));
@@ -1398,5 +1466,6 @@
 
 </script>
 <script type="module" src="familiada.js?v=7"></script>
+<script type="module" src="granat-x.js?v=1"></script>
 
 </html>
