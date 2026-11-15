@@ -329,6 +329,15 @@
   .gate-title { font-size: clamp(2.4rem, 11vw, 3.4rem); }
   .gate-title span { color: var(--gold); }
   .gate .vault { box-shadow: 0 30px 70px rgba(0, 0, 0, .5); }
+  .pin-input { font: inherit; font-family: var(--f-mono); font-weight: 700; font-size: 2rem; letter-spacing: .6em; text-align: center; color: var(--gold-2); background: rgba(10, 17, 36, .6); border: 1px solid var(--line); border-radius: 12px; padding: 12px 0 12px .6em; width: 100%; -webkit-text-security: disc; }
+  .pin-input:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
+  .pin-who { margin: 0; color: var(--mist); }
+  .pin-who b { color: var(--snow); }
+  .pin-link { font: inherit; font-size: .92rem; color: var(--gold-2); background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: underline; justify-self: start; }
+  .vault select { font: inherit; font-size: 16px; color: var(--snow); background: rgba(10, 17, 36, .6); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .pin-modal { position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 16px; background: rgba(4, 7, 18, .78); backdrop-filter: blur(4px); overflow-y: auto; }
+  .pin-box { width: 100%; max-width: 420px; animation: pop .35s ease-out both; }
+  .pin-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
   /* GRANAT X (parodia Twittera) */
   .gx { padding-block: 22px 8px; background: #05091a; border-bottom: 1px solid var(--line); }
   .gx .wrap { max-width: 640px; }
@@ -587,14 +596,40 @@
         <h1 class="gate-title">Granat <span>Szerominek</span></h1>
       </div>
     </div>
+    <form class="vault" id="p-form" autocomplete="off" hidden>
+      <h3>Wpisz PIN</h3>
+      <p class="pin-who" id="p-who"></p>
+      <div class="field" id="p-pick-row" hidden><label for="p-pick">Konto</label><select id="p-pick"></select></div>
+      <input class="pin-input" id="p-pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="PIN, 4 cyfry">
+      <button class="go" id="p-go" type="submit">Wejdź</button>
+      <p class="msg" id="p-msg" role="alert"></p>
+      <button class="pin-link" id="p-haslo" type="button">Zaloguj się hasłem</button>
+    </form>
     <form class="vault" id="g-form" autocomplete="off">
       <h3>Zaloguj się</h3>
       <div class="field"><label for="g-login">Login</label><input id="g-login" name="login" autocapitalize="none" spellcheck="false" required></div>
       <div class="field"><label for="g-pass">Hasło</label><input id="g-pass" name="pass" type="password" autocapitalize="none" spellcheck="false" required></div>
       <button class="go" id="g-go" type="submit">Wejdź</button>
       <p class="msg" id="g-msg" role="alert"></p>
+      <button class="pin-link" id="g-pin" type="button" hidden>Zaloguj się PIN-em</button>
     </form>
   </div>
+</div>
+
+<div class="pin-modal" id="pin-modal" role="dialog" aria-modal="true" aria-labelledby="pin-title" hidden>
+  <form class="vault pin-box" id="pin-set" autocomplete="off">
+    <p class="kicker" style="margin:0">Szybsze logowanie</p>
+    <h3 id="pin-title">Ustaw 4-cyfrowy PIN</h3>
+    <p>Następnym razem na tym urządzeniu wpiszesz tylko PIN zamiast hasła. PIN działa tylko tutaj – na innym telefonie zalogujesz się hasłem.</p>
+    <div class="field"><label for="pin-a">PIN</label><input class="pin-input" id="pin-a" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off"></div>
+    <div class="field"><label for="pin-b">Powtórz PIN</label><input class="pin-input" id="pin-b" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off"></div>
+    <p class="msg" id="pin-msg" role="alert"></p>
+    <div class="pin-btns">
+      <button class="go" type="submit">Ustaw PIN</button>
+      <button class="pin-link" id="pin-later" type="button">Nie teraz</button>
+      <button class="pin-link" id="pin-del" type="button" hidden>Usuń PIN z tego urządzenia</button>
+    </div>
+  </form>
 </div>
 
 <header class="bar">
@@ -606,6 +641,7 @@
       <a class="tab-btn" href="#sylwester" data-tab="sylwester" id="tab-btn-sylwester">Sylwester</a>
       <a class="tab-btn" href="#tajne" data-tab="tajne">Tajne</a>
       <a class="tab-btn" href="kronika.html">Kronika</a>
+      <button class="logout" id="pin-open" type="button" title="PIN do logowania" aria-label="PIN do logowania"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg><span>PIN</span></button>
       <button class="logout" id="logout" type="button" title="Wyloguj" aria-label="Wyloguj"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>Wyloguj</span></button>
     </nav>
   </div>
@@ -1273,6 +1309,97 @@
     dispatchEvent(new Event("granat:login"));
   }
 
+  // ---------- PIN (szybkie logowanie na tym urządzeniu) ----------
+  // Hasło jest szyfrowane kluczem z PIN-u (PBKDF2 + AES-GCM) i trzyma się w localStorage tego urządzenia.
+  const PIN_KEY = "granat-pin", PIN_ITER = 300000, PIN_MAX = 5;
+  const pinAll = () => { try { return JSON.parse(localStorage.getItem(PIN_KEY) || "{}"); } catch (e) { return {}; } };
+  const pinPut = all => { try { localStorage.setItem(PIN_KEY, JSON.stringify(all)); } catch (e) {} };
+  const pinHas = l => !!pinAll()[l];
+  async function pinKey(login, pin, salt) {
+    const base = await crypto.subtle.importKey("raw", enc.encode(login + ":" + pin), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: PIN_ITER, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  }
+  async function pinSave(login, pass, pin) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const c = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await pinKey(login, pin, salt), enc.encode(pass));
+    const all = pinAll(); all[login] = { s: toB64(salt), i: toB64(iv), c: toB64(c), bledy: 0 }; pinPut(all);
+  }
+  async function pinOpen(login, pin) {
+    const all = pinAll(), r = all[login];
+    if (!r) throw new Error("brak");
+    try {
+      const p = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(r.i) }, await pinKey(login, pin, b64(r.s)), b64(r.c));
+      r.bledy = 0; pinPut(all);
+      return new TextDecoder().decode(p);
+    } catch (e) {
+      r.bledy = (r.bledy || 0) + 1;
+      if (r.bledy >= PIN_MAX) delete all[login];
+      pinPut(all);
+      throw new Error(r.bledy >= PIN_MAX ? "blokada" : "pin");
+    }
+  }
+  const pinDel = l => { const all = pinAll(); delete all[l]; pinPut(all); };
+  const nazwaKonta = l => (l === "rafal" ? "Rafał" : l.charAt(0).toUpperCase() + l.slice(1));
+
+  // Bramka: jeśli na tym urządzeniu jest PIN, pokazujemy logowanie PIN-em.
+  function gateMode(pinMode) {
+    const konta = Object.keys(pinAll()).filter(l => AUTH.users[l]);
+    const pin = pinMode && konta.length > 0;
+    $("p-form").hidden = !pin; $("g-form").hidden = pin; $("g-pin").hidden = !konta.length;
+    if (pin) {
+      $("p-pick-row").hidden = konta.length < 2;
+      $("p-pick").replaceChildren(...konta.map(l => new Option(nazwaKonta(l), l)));
+      $("p-who").replaceChildren(document.createTextNode("Konto: "), Object.assign(document.createElement("b"), { textContent: nazwaKonta(konta[0]) }));
+      $("p-who").hidden = konta.length > 1;
+      $("p-msg").textContent = ""; $("p-pin").value = "";
+      setTimeout(() => $("p-pin").focus(), 50);
+    }
+  }
+  $("p-haslo").addEventListener("click", () => gateMode(false));
+  $("g-pin").addEventListener("click", () => gateMode(true));
+  $("p-pin").addEventListener("input", () => { $("p-pin").value = $("p-pin").value.replace(/\D/g, "").slice(0, 4); if ($("p-pin").value.length === 4) $("p-form").requestSubmit(); });
+  $("p-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const login = $("p-pick").value, pin = $("p-pin").value, msg = $("p-msg"), btn = $("p-go");
+    if (!/^\d{4}$/.test(pin)) { msg.textContent = "PIN ma 4 cyfry."; return; }
+    btn.disabled = true; btn.textContent = "Sprawdzam…"; msg.textContent = "";
+    try {
+      const pass = await pinOpen(login, pin);
+      await verify(login, pass);
+      me = { login, pass }; save();
+      enter();
+    } catch (err) {
+      $("p-pin").value = "";
+      if (err.message === "blokada") { gateMode(false); $("g-login").value = login; $("g-msg").textContent = "Za dużo błędnych PIN-ów – PIN został usunięty. Zaloguj się hasłem."; }
+      else if (err.message === "pass") { pinDel(login); gateMode(false); $("g-login").value = login; $("g-msg").textContent = "Hasło do konta się zmieniło – zaloguj się hasłem i ustaw PIN od nowa."; }
+      else { const r = pinAll()[login]; msg.textContent = `Zły PIN. Zostało prób: ${PIN_MAX - (r?.bledy || 0)}.`; }
+    } finally { btn.disabled = false; btn.textContent = "Wejdź"; }
+  });
+
+  // Okienko ustawiania PIN-u: zaraz po zalogowaniu hasłem i z przycisku „PIN” w nagłówku.
+  function pinModal() {
+    if (!me) return;
+    $("pin-a").value = $("pin-b").value = ""; $("pin-msg").textContent = "";
+    $("pin-title").textContent = pinHas(me.login) ? "Zmień PIN" : "Ustaw 4-cyfrowy PIN";
+    $("pin-del").hidden = !pinHas(me.login);
+    $("pin-modal").hidden = false;
+    setTimeout(() => $("pin-a").focus(), 50);
+  }
+  const pinClose = () => { $("pin-modal").hidden = true; };
+  ["pin-a", "pin-b"].forEach(id => $(id).addEventListener("input", () => { $(id).value = $(id).value.replace(/\D/g, "").slice(0, 4); if (id === "pin-a" && $(id).value.length === 4) $("pin-b").focus(); }));
+  $("pin-set").addEventListener("submit", async e => {
+    e.preventDefault();
+    const a = $("pin-a").value, b = $("pin-b").value, msg = $("pin-msg");
+    if (!/^\d{4}$/.test(a)) { msg.textContent = "Wpisz 4 cyfry."; return; }
+    if (a !== b) { msg.textContent = "PIN-y się różnią. Wpisz jeszcze raz."; $("pin-b").value = ""; $("pin-b").focus(); return; }
+    try { await pinSave(me.login, me.pass, a); pinClose(); try { localStorage.removeItem("granat-pin-pominiety-" + me.login); } catch (e2) {} }
+    catch (err) { msg.textContent = "Nie udało się zapisać PIN-u na tym urządzeniu."; }
+  });
+  $("pin-later").addEventListener("click", () => { try { localStorage.setItem("granat-pin-pominiety-" + me.login, "1"); } catch (e) {} pinClose(); });
+  $("pin-del").addEventListener("click", () => { pinDel(me.login); pinClose(); });
+  $("pin-open").addEventListener("click", pinModal);
+  const pinPominiety = l => { try { return localStorage.getItem("granat-pin-pominiety-" + l) === "1"; } catch (e) { return false; } };
+
   $("g-form").addEventListener("submit", async e => {
     e.preventDefault();
     const btn = $("g-go"), msg = $("g-msg");
@@ -1285,6 +1412,8 @@
       me = { login, pass }; save();
       $("g-pass").value = "";
       enter();
+      // Zaraz po zalogowaniu hasłem proponujemy PIN (raz – „Nie teraz” zapamiętujemy na tym urządzeniu).
+      if (!pinHas(login) && !pinPominiety(login)) pinModal();
     } catch (err) {
       msg.textContent = err.message === "login" ? "Nie ma takiego loginu. Sprawdź wiadomość z danymi." : "Złe hasło. Spróbuj jeszcze raz.";
     } finally {
@@ -1462,6 +1591,7 @@
   } else {
     document.body.classList.add("locked");
   }
+  gateMode(true);
 })();
 
 </script>
