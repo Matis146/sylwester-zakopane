@@ -18,8 +18,11 @@ if (EMU) { connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings:
 
 const GRA = doc(db, "familiada", "gra");
 const GRACZE = collection(db, "familiada", "gra", "gracze");
-const buzzDoc = (runda, proba) => doc(db, "familiada", "gra", "buzz", `${runda}-${proba}`);
-const odpDoc = (runda, krok) => doc(db, "familiada", "gra", "odp", `${runda}-${krok}`);
+const buzzDoc = (runda, proba) => doc(db, "familiada", "gra", "buzz", `${stan.gid}-${runda}-${proba}`);
+const odpDoc = (runda, krok) => doc(db, "familiada", "gra", "odp", `${stan.gid}-${runda}-${krok}`);
+const nowyGid = () => Math.random().toString(36).slice(2, 10);
+// Pytanie pojawia się literka po literce: CPS znaków na sekundę, po krótkiej pauzie.
+const CPS = 14, PAUZA = 0.6;
 // Etapy rundy, w których ktoś wpisuje odpowiedź.
 const ODPOWIADANIE = ["pojedynek1", "pojedynek2", "gra", "kradziez"];
 const NOWA_GRA = {
@@ -40,7 +43,7 @@ const fail = e => { console.error(e); status("Coś poszło nie tak: " + (e.code 
 const status = (t, err) => { const s = $("fam-status"); s.textContent = t || ""; s.hidden = !t; s.classList.toggle("err", !!err); };
 
 let uid = null, login = null, host = false, stan = null, gracze = [], buzz = null, bank = [];
-let started = false, lastBlysk = null, lastOdkryte = null, turnKey = "", turnStart = 0;
+let started = false, lastBlysk = null, lastOdkryte = null, turnKey = "", turnStart = 0, qKey = "", qStart = 0;
 
 // ---------- Dźwięki (Web Audio, bez plików) ----------
 let ac = null;
@@ -90,7 +93,7 @@ setInterval(tickTimer, 250);
 let buzzKey = "", unsubBuzz = null, odpKey = "", unsubOdp = null;
 function onState() {
   if (stan) {
-    const bk = `${stan.runda}-${stan.proba || 0}`;
+    const bk = `${stan.gid}-${stan.runda}-${stan.proba || 0}`;
     if (bk !== buzzKey) {
       buzzKey = bk; if (unsubBuzz) unsubBuzz(); buzz = null;
       let first = true;
@@ -102,10 +105,12 @@ function onState() {
         render();
       }, fail);
     }
-    const tk = `${stan.runda}-${stan.krok || 0}-${stan.etap}`;
+    const tk = `${stan.gid}-${stan.runda}-${stan.krok || 0}-${stan.etap}`;
+    const qk = `${stan.gid}-${stan.runda}`;
+    if (qk !== qKey) { qKey = qk; qStart = Date.now(); }
     if (tk !== turnKey) { turnKey = tk; turnStart = Date.now(); $("fam-input").value = ""; $("fam-form-msg").textContent = ""; }
     if (host) {
-      const ok = `${stan.runda}-${stan.krok || 0}`;
+      const ok = `${stan.gid}-${stan.runda}-${stan.krok || 0}`;
       if (ok !== odpKey) {
         odpKey = ok; if (unsubOdp) unsubOdp();
         unsubOdp = onSnapshot(odpDoc(stan.runda, stan.krok || 0), s => { if (s.exists()) engineAnswer(s.data(), ok); }, fail);
@@ -195,11 +200,17 @@ let handled = "";
 
 function engineBuzz() {
   if (!stan || stan.etap !== "buzz" || !buzz) return;
-  upd({ etap: "pojedynek1", kto: buzz.druzyna, ktoUid: buzz.uid, ktoImie: buzz.imie, krok: (stan.krok || 0) + 1, ostatnia: null });
+  // Gdzie było pytanie w chwili zgłoszenia (czas serwera, więc u wszystkich tak samo).
+  let stop = -1;
+  if (!stan.proba && stan.pokazano?.toMillis && buzz.t?.toMillis) {
+    const n = Math.floor(((buzz.t.toMillis() - stan.pokazano.toMillis()) / 1000 - PAUZA) * CPS);
+    if (n < stan.pytanie.length) stop = Math.max(0, n);
+  }
+  upd({ etap: "pojedynek1", kto: buzz.druzyna, ktoUid: buzz.uid, ktoImie: buzz.imie, krok: (stan.krok || 0) + 1, ostatnia: null, stop });
 }
 
 function engineAnswer(ans, key) {
-  if (!stan || handled === key || key !== `${stan.runda}-${stan.krok || 0}` || !ODPOWIADANIE.includes(stan.etap)) return;
+  if (!stan || handled === key || key !== `${stan.gid}-${stan.runda}-${stan.krok || 0}` || !ODPOWIADANIE.includes(stan.etap)) return;
   handled = key;
   const idx = ans ? dopasuj(ans.tekst) : -1;
   if (ans && (idx < 0 || stan.recznie)) { upd({ decyzja: { imie: ans.imie, druzyna: ans.druzyna, tekst: ans.tekst, sugestia: idx } }); return; }
@@ -209,7 +220,7 @@ function engineAnswer(ans, key) {
 // Upływ czasu = zła odpowiedź (prowadzący liczy z małym zapasem na opóźnienia).
 setInterval(() => {
   if (!host || !stan || stan.decyzja || !ODPOWIADANIE.includes(stan.etap)) return;
-  const key = `${stan.runda}-${stan.krok || 0}`;
+  const key = `${stan.gid}-${stan.runda}-${stan.krok || 0}`;
   if (handled !== key && (Date.now() - turnStart) / 1000 > (stan.czas || 20) + 1.5) { handled = key; rozstrzygnij(-1, null); }
 }, 400);
 
@@ -223,6 +234,7 @@ function rozstrzygnij(idx, ans, opts = {}) {
   d.ostatnia = { imie: imieOdp, druzyna: kto, tekst: ans ? ans.tekst : opts.reczne ? "(decyzja prowadzącego)" : "(czas minął)", ok: idx >= 0, idx };
   d.decyzja = null;
   d.krok = (s.krok || 0) + 1;
+  d.stop = -1;
   const wszystkie = Object.keys(odkryte).length >= q.odpowiedzi.length;
   const przyznaj = team => { d["wynik." + team] = (s.wynik?.[team] || 0) + pula; d.przyznano = team; d.etap = "po"; d.kto = ""; d.ktoUid = ""; };
   const krzyzyk = ile => { d.blysk = { typ: "x", n: Date.now(), ile }; };
@@ -270,26 +282,26 @@ function reszta(q, odkryte) {
 }
 
 const H = {
-  nowa: () => confirm("Zacząć nową grę? Wyniki zostaną wyzerowane (gracze zostają).") && setDoc(GRA, { ...NOWA_GRA, druzyny: stan?.druzyny || NOWA_GRA.druzyny, czas: stan?.czas || 20 }).catch(fail),
+  nowa: () => confirm("Zacząć nową grę? Wyniki zostaną wyzerowane (gracze zostają).") && setDoc(GRA, { ...NOWA_GRA, gid: nowyGid(), druzyny: stan?.druzyny || NOWA_GRA.druzyny, czas: stan?.czas || 20, recznie: !!stan?.recznie }).catch(fail),
   start: () => upd({ faza: "gra" }),
   koniec: () => confirm("Zakończyć grę i pokazać zwycięzcę?") && upd({ faza: "koniec", etap: "", kto: "" }),
   pytanie: (id, m) => {
     const q = bank.find(x => x.id === id);
     if (!q) return;
     upd({ faza: "gra", runda: (stan.runda || 0) + 1, pytanieId: q.id, pytanie: q.pytanie, sloty: q.odpowiedzi.length, odkryte: {},
-      mnoznik: m, pula: 0, przyznano: "", etap: "buzz", proba: 0, kto: "", ktoUid: "", ktoImie: "", kontrola: "", bledy: 0, p1: null, ostatnia: null,
+      mnoznik: m, pula: 0, przyznano: "", etap: "buzz", proba: 0, pokazano: serverTimestamp(), stop: -1, kto: "", ktoUid: "", ktoImie: "", kontrola: "", bledy: 0, p1: null, ostatnia: null,
       uzyte: [...new Set([...(stan.uzyte || []), q.id])] });
   },
   // Ręczne poprawki: uznanie odpowiedzi albo pudła w bieżącym kroku (gdy automat się pomylił).
-  uznaj: i => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(i, stan.decyzja, { reczne: true }); } else odkryjRecznie(i); },
-  pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, stan.decyzja, { reczne: true }); } },
+  uznaj: i => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.gid}-${stan.runda}-${stan.krok || 0}`; rozstrzygnij(i, stan.decyzja, { reczne: true }); } else odkryjRecznie(i); },
+  pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.gid}-${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, stan.decyzja, { reczne: true }); } },
   recznie: on => upd({ recznie: on }),
   cofnijBlad: () => {
     const b = Math.max(0, (stan.bledy || 0) - 1);
     upd(stan.etap === "kradziez" ? nastepny(stan.kontrola, { bledy: b, etap: "gra", kto: stan.kontrola, krok: (stan.krok || 0) + 1 }) : { bledy: b });
   },
   // Pomija osobę, która nie odpowiada (bez błędu) – ruch ma następna z drużyny.
-  pomin: () => { if (ODPOWIADANIE.includes(stan.etap) && stan.etap !== "pojedynek1") { handled = `${stan.runda}-${stan.krok || 0}`; upd(nastepny(stan.kto, { krok: (stan.krok || 0) + 1 })); } },
+  pomin: () => { if (ODPOWIADANIE.includes(stan.etap) && stan.etap !== "pojedynek1") { handled = `${stan.gid}-${stan.runda}-${stan.krok || 0}`; upd(nastepny(stan.kto, { krok: (stan.krok || 0) + 1 })); } },
   przyznaj: d => { if (!stan.przyznano) upd({ ["wynik." + d]: (stan.wynik?.[d] || 0) + (stan.pula || 0), przyznano: d, etap: "po", kto: "" }); },
   // Odsłanianie pozostałych odpowiedzi po rundzie: od najniżej punktowanej, jak w TV (bez punktów).
   nastepna: () => { const q = pyt(); if (!q) return; const i = q.odpowiedzi.map((_, k) => k).reverse().find(k => !stan.odkryte?.[k]); if (i !== undefined) odkryjRecznie(i); },
@@ -299,7 +311,7 @@ const H = {
   nazwy: () => upd({ druzyny: { A: $("fh-nA").value.trim().slice(0, 30) || "Drużyna A", B: $("fh-nB").value.trim().slice(0, 30) || "Drużyna B" } }),
   przenies: g => updateDoc(doc(GRACZE, g.uid), { druzyna: inna(g.druzyna) }).catch(fail),
   usun: g => confirm(`Usunąć ${g.imie} z gry?`) && deleteDoc(doc(GRACZE, g.uid)).catch(fail),
-  utworz: () => setDoc(GRA, NOWA_GRA).catch(fail),
+  utworz: () => setDoc(GRA, { ...NOWA_GRA, gid: nowyGid() }).catch(fail),
 };
 function odkryjRecznie(i) {
   const a = pyt()?.odpowiedzi[i];
@@ -308,6 +320,26 @@ function odkryjRecznie(i) {
   if (!stan.przyznano) d.pula = (stan.pula || 0) + a.p * (stan.mnoznik || 1);
   upd(d);
 }
+
+// ---------- Pytanie literka po literce ----------
+function widocznePytanie() {
+  const t = stan?.pytanie || "";
+  if (stan.etap === "pojedynek1" && stan.stop >= 0) return t.slice(0, stan.stop).trimEnd() + "…";
+  if (stan.etap !== "buzz" || stan.proba) return t;
+  if (buzz) return null; // zgłoszenie jest – zatrzymaj tam, gdzie było, aż przyjdzie miejsce od prowadzącego
+  const n = Math.max(0, Math.floor(((Date.now() - qStart) / 1000 - PAUZA) * CPS));
+  return n >= t.length ? t : t.slice(0, n);
+}
+function pytanieEl() {
+  const h = el("h3", "fam-q"); h.id = "fam-q";
+  const v = widocznePytanie(); h.textContent = v ?? ($("fam-q")?.textContent || "");
+  return h;
+}
+setInterval(() => {
+  const h = $("fam-q"); if (!h || !stan) return;
+  const v = widocznePytanie();
+  if (v != null && h.textContent !== v) h.textContent = v;
+}, 50);
 
 // ---------- Licznik czasu ----------
 function tickTimer() {
@@ -359,7 +391,7 @@ function render() {
     root.append(el("p", "fam-note", stan.faza === "lobby" ? "Lobby – czekamy, aż prowadzący zacznie grę." : "Czekamy na pierwsze pytanie…"));
   } else {
     const board = el("div", "fam-board");
-    board.append(el("p", "fam-round", `Runda ${stan.runda}` + (stan.mnoznik > 1 ? ` · punkty ×${stan.mnoznik}` : "")), el("h3", "fam-q", stan.pytanie));
+    board.append(el("p", "fam-round", `Runda ${stan.runda}` + (stan.mnoznik > 1 ? ` · punkty ×${stan.mnoznik}` : "")), pytanieEl());
     const ol = el("ol", "fam-slots");
     for (let i = 0; i < stan.sloty; i++) {
       const a = stan.odkryte?.[i];
