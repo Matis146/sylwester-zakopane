@@ -134,7 +134,7 @@ function effects() {
 const ja = () => gracze.find(g => g.uid === uid);
 const mogeOdpowiadac = () => {
   const g = ja();
-  return !!(stan && g && ODPOWIADANIE.includes(stan.etap) && g.druzyna === stan.kto && (!stan.ktoUid || stan.ktoUid === uid) && pozostalo() > 0);
+  return !!(stan && g && !stan.decyzja && ODPOWIADANIE.includes(stan.etap) && g.druzyna === stan.kto && (!stan.ktoUid || stan.ktoUid === uid) && pozostalo() > 0);
 };
 const pozostalo = () => (stan ? Math.max(0, (stan.czas || 20) - (Date.now() - turnStart) / 1000) : 0);
 async function dolacz(d) {
@@ -201,12 +201,14 @@ function engineBuzz() {
 function engineAnswer(ans, key) {
   if (!stan || handled === key || key !== `${stan.runda}-${stan.krok || 0}` || !ODPOWIADANIE.includes(stan.etap)) return;
   handled = key;
-  rozstrzygnij(ans ? dopasuj(ans.tekst) : -1, ans);
+  const idx = ans ? dopasuj(ans.tekst) : -1;
+  if (ans && (idx < 0 || stan.recznie)) { upd({ decyzja: { imie: ans.imie, druzyna: ans.druzyna, tekst: ans.tekst, sugestia: idx } }); return; }
+  rozstrzygnij(idx, ans);
 }
 
 // Upływ czasu = zła odpowiedź (prowadzący liczy z małym zapasem na opóźnienia).
 setInterval(() => {
-  if (!host || !stan || !ODPOWIADANIE.includes(stan.etap)) return;
+  if (!host || !stan || stan.decyzja || !ODPOWIADANIE.includes(stan.etap)) return;
   const key = `${stan.runda}-${stan.krok || 0}`;
   if (handled !== key && (Date.now() - turnStart) / 1000 > (stan.czas || 20) + 1.5) { handled = key; rozstrzygnij(-1, null); }
 }, 400);
@@ -218,7 +220,8 @@ function rozstrzygnij(idx, ans, opts = {}) {
   const kto = s.kto, imieOdp = ans?.imie || s.ktoImie || s.druzyny?.[kto] || "";
   let pula = s.pula || 0, odkryte = { ...(s.odkryte || {}) };
   if (idx >= 0) { const a = q.odpowiedzi[idx]; odkryte[idx] = { t: a.t, p: a.p }; d["odkryte." + idx] = { t: a.t, p: a.p }; pula += a.p * m; d.pula = pula; }
-  d.ostatnia = { imie: imieOdp, druzyna: kto, tekst: opts.reczne ? "(decyzja prowadzącego)" : ans ? ans.tekst : "(czas minął)", ok: idx >= 0, idx };
+  d.ostatnia = { imie: imieOdp, druzyna: kto, tekst: ans ? ans.tekst : opts.reczne ? "(decyzja prowadzącego)" : "(czas minął)", ok: idx >= 0, idx };
+  d.decyzja = null;
   d.krok = (s.krok || 0) + 1;
   const wszystkie = Object.keys(odkryte).length >= q.odpowiedzi.length;
   const przyznaj = team => { d["wynik." + team] = (s.wynik?.[team] || 0) + pula; d.przyznano = team; d.etap = "po"; d.kto = ""; d.ktoUid = ""; Object.assign(d, reszta(q, odkryte)); };
@@ -278,8 +281,9 @@ const H = {
       uzyte: [...new Set([...(stan.uzyte || []), q.id])] });
   },
   // Ręczne poprawki: uznanie odpowiedzi albo pudła w bieżącym kroku (gdy automat się pomylił).
-  uznaj: i => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(i, null, { reczne: true }); } else odkryjRecznie(i); },
-  pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, null, { reczne: true }); } },
+  uznaj: i => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(i, stan.decyzja, { reczne: true }); } else odkryjRecznie(i); },
+  pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, stan.decyzja, { reczne: true }); } },
+  recznie: on => upd({ recznie: on }),
   cofnijBlad: () => {
     const b = Math.max(0, (stan.bledy || 0) - 1);
     upd(stan.etap === "kradziez" ? nastepny(stan.kontrola, { bledy: b, etap: "gra", kto: stan.kontrola, krok: (stan.krok || 0) + 1 }) : { bledy: b });
@@ -305,7 +309,7 @@ function odkryjRecznie(i) {
 // ---------- Licznik czasu ----------
 function tickTimer() {
   const box = $("fam-timer"), form = $("fam-form");
-  const active = stan && stan.faza === "gra" && ODPOWIADANIE.includes(stan.etap);
+  const active = stan && stan.faza === "gra" && !stan.decyzja && ODPOWIADANIE.includes(stan.etap);
   box.hidden = !active;
   const moge = mogeOdpowiadac();
   if (form.hidden === moge) { form.hidden = !moge; if (moge) { $("fam-form-msg").textContent = ""; $("fam-input").focus({ preventScroll: true }); } }
@@ -380,8 +384,11 @@ function render() {
     }[stan.etap];
     if (tekst) { info.append(el("small", "", tekst[0]), el("span", "", tekst[1])); root.append(info); }
 
-    // Ostatnia odpowiedź
-    if (stan.ostatnia) {
+    if (stan.decyzja) {
+      const w = el("div", "fam-last wait");
+      w.append(el("span", "", `${stan.decyzja.imie}:`), el("b", "", `„${stan.decyzja.tekst}”`), el("i", "", "…"));
+      root.append(w, el("p", "fam-note", "Prowadzący decyduje, czy uznać tę odpowiedź…"));
+    } else if (stan.ostatnia) {
       const o = stan.ostatnia;
       const last = el("div", "fam-last " + (o.ok ? "ok" : "bad"));
       last.append(el("span", "", `${o.imie}:`), el("b", "", `„${o.tekst}”`), el("i", "", o.ok ? "✓" : "✕"));
@@ -427,6 +434,16 @@ function hostPanel() {
   if (!stan) return;
   box.append(el("p", "fam-note", "Nie zamykaj tej strony w trakcie gry – to ona sprawdza odpowiedzi graczy."));
   const row = (...kids) => { const r = el("div", "fh-row"); r.append(...kids); box.append(r); return r; };
+  const qd = pyt();
+  if (stan.decyzja && qd) {
+    const dz = el("div", "fh-decide");
+    dz.append(el("p", "kicker", "Twoja decyzja"), el("p", "", `${stan.decyzja.imie} (${stan.druzyny[stan.decyzja.druzyna] || ""}) wpisał(a):`), el("b", "fh-said", `„${stan.decyzja.tekst}”`));
+    if (stan.decyzja.sugestia >= 0) dz.append(el("p", "fam-note", `Automat proponuje: ${qd.odpowiedzi[stan.decyzja.sugestia].t}`));
+    const opts = el("div", "fh-answers");
+    qd.odpowiedzi.forEach((a, i) => { if (!stan.odkryte?.[i]) opts.append(btn(`Uznaj jako: ${a.t} · ${a.p}`, i === stan.decyzja.sugestia ? "gold" : "", () => H.uznaj(i))); });
+    dz.append(opts, btn("Nie uznaję – pudło ✕", "red", H.pudlo));
+    box.append(dz);
+  }
 
   // Pytanie
   const sel = el("select"); sel.id = "fh-q";
@@ -466,7 +483,9 @@ function hostPanel() {
   const czas = el("select"); [10, 15, 20, 30, 45].forEach(s => czas.append(new Option(`${s} s na odpowiedź`, s))); czas.value = stan.czas || 20;
   czas.addEventListener("change", () => H.czas(+czas.value));
   row(btn("Start gry", stan.faza === "lobby" ? "gold" : "", H.start), btn("Zakończ grę", "", H.koniec), btn("Nowa gra (zeruj wyniki)", "red", H.nowa));
-  row(czas);
+  const rc = el("label", "fh-check"); const cbx = el("input"); cbx.type = "checkbox"; cbx.checked = !!stan.recznie;
+  cbx.addEventListener("change", () => H.recznie(cbx.checked)); rc.append(cbx, document.createTextNode(" Każda odpowiedź do mojej decyzji"));
+  row(czas, rc);
   const nA = el("input"); nA.id = "fh-nA"; nA.value = stan.druzyny.A; nA.maxLength = 30;
   const nB = el("input"); nB.id = "fh-nB"; nB.value = stan.druzyny.B; nB.maxLength = 30;
   for (const [k, inp] of [["nA", nA], ["nB", nB]]) if (keep[k] && keep[k] === focused) { inp.value = keep[k].value; queueMicrotask(() => inp.focus()); }

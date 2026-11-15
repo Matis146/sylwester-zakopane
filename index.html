@@ -407,6 +407,12 @@
   .fam-last i { font-style: normal; font-weight: 900; font-size: 1.3rem; }
   .fam-last.ok i { color: #4fbf8a; }
   .fam-last.bad i { color: var(--red); }
+  .fam-last.wait i { color: var(--gold); }
+  .fh-decide { border: 2px solid var(--gold); border-radius: 14px; padding: 14px; display: grid; gap: 8px; background: rgba(224, 185, 92, .1); animation: pop .3s ease-out both; }
+  .fh-decide p { margin: 0; }
+  .fh-said { font-family: var(--f-display); font-weight: 900; font-size: 1.8rem; text-transform: uppercase; color: var(--gold-2); overflow-wrap: anywhere; }
+  .fh-check { display: inline-flex; align-items: center; gap: 8px; font-size: .92rem; cursor: pointer; }
+  .fh-check input { width: 18px; height: 18px; accent-color: var(--gold); }
   .fam-timer { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; margin-top: 18px; }
   .fam-timer b { font-family: var(--f-display); font-weight: 900; font-size: 2.2rem; line-height: 1; min-width: 2ch; text-align: right; color: var(--gold-2); font-variant-numeric: tabular-nums; }
   .fam-timer span { height: 10px; border-radius: 99px; background: var(--panel); overflow: hidden; border: 1px solid var(--line); }
@@ -1391,6 +1397,6 @@
 })();
 
 </script>
-<script type="module" src="familiada.js?v=4"></script>
+<script type="module" src="familiada.js?v=5"></script>
 
 </html>
