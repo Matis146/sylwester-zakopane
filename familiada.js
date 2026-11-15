@@ -246,7 +246,18 @@ function rozstrzygnij(idx, ans, opts = {}) {
     if (idx < 0) krzyzyk(1);
     przyznaj(idx >= 0 ? kto : s.kontrola);
   }
+  const etap = d.etap ?? s.etap;
+  if (ODPOWIADANIE.includes(etap)) nastepny(d.kto ?? s.kto, d);
   upd(d);
+}
+// Wskazuje kolejną osobę z drużyny, która odpowiada w tym kroku.
+function nastepny(team, d) {
+  const ludzie = gracze.filter(g => g.druzyna === team).sort((a, b) => a.imie.localeCompare(b.imie, "pl") || a.uid.localeCompare(b.uid));
+  if (!ludzie.length) { d.ktoUid = ""; d.ktoImie = ""; return d; }
+  const n = stan.kol?.[team] || 0;
+  const g = ludzie[n % ludzie.length];
+  d["kol." + team] = n + 1; d.ktoUid = g.uid; d.ktoImie = g.imie;
+  return d;
 }
 // Po rozstrzygnięciu rundy odkrywamy resztę odpowiedzi (już bez punktów).
 function reszta(q, odkryte) {
@@ -271,8 +282,10 @@ const H = {
   pudlo: () => { if (ODPOWIADANIE.includes(stan.etap)) { handled = `${stan.runda}-${stan.krok || 0}`; rozstrzygnij(-1, null, { reczne: true }); } },
   cofnijBlad: () => {
     const b = Math.max(0, (stan.bledy || 0) - 1);
-    upd(stan.etap === "kradziez" ? { bledy: b, etap: "gra", kto: stan.kontrola, krok: (stan.krok || 0) + 1 } : { bledy: b });
+    upd(stan.etap === "kradziez" ? nastepny(stan.kontrola, { bledy: b, etap: "gra", kto: stan.kontrola, krok: (stan.krok || 0) + 1 }) : { bledy: b });
   },
+  // Pomija osobę, która nie odpowiada (bez błędu) – ruch ma następna z drużyny.
+  pomin: () => { if (ODPOWIADANIE.includes(stan.etap) && stan.etap !== "pojedynek1") { handled = `${stan.runda}-${stan.krok || 0}`; upd(nastepny(stan.kto, { krok: (stan.krok || 0) + 1 })); } },
   przyznaj: d => { if (!stan.przyznano) upd({ ["wynik." + d]: (stan.wynik?.[d] || 0) + (stan.pula || 0), przyznano: d, etap: "po", kto: "", ...reszta(pyt(), stan.odkryte || {}) }); },
   ponowBuzz: () => upd({ etap: "buzz", proba: (stan.proba || 0) + 1, kto: "", ktoUid: "", ktoImie: "", p1: null }),
   czas: s => upd({ czas: s }),
@@ -360,9 +373,9 @@ function render() {
     const tekst = {
       buzz: ["Kto pierwszy?", "Naciśnij przycisk, żeby odpowiadać."],
       pojedynek1: ["Pojedynek", `Odpowiada ${stan.ktoImie} (${kto}) – trzeba trafić najwyżej punktowaną odpowiedź.`],
-      pojedynek2: ["Szansa dla rywali", `${kto}: wpiszcie odpowiedź wyżej punktowaną niż poprzednia, a przejmiecie pytanie.`],
-      gra: ["Gra drużyna", `${kto} odgaduje kolejne odpowiedzi (błędy: ${stan.bledy || 0}/3).`],
-      kradziez: ["Kradzież!", `${kto} ma jedną szansę, żeby przejąć całą pulę (${stan.pula || 0} pkt).`],
+      pojedynek2: ["Szansa dla rywali", `Odpowiada ${stan.ktoImie || kto} (${kto}) – trzeba trafić wyżej punktowaną odpowiedź, żeby przejąć pytanie.`],
+      gra: [`Gra drużyna ${kto}`, `Teraz odpowiada ${stan.ktoImie || kto} · błędy: ${stan.bledy || 0}/3`],
+      kradziez: ["Kradzież!", `${kto} ma jedną szansę na całą pulę (${stan.pula || 0} pkt) – odpowiada ${stan.ktoImie || kto}.`],
       po: ["Koniec rundy", `Pula trafiła do: ${nazwa(stan.przyznano)}. Czekamy na kolejne pytanie.`],
     }[stan.etap];
     if (tekst) { info.append(el("small", "", tekst[0]), el("span", "", tekst[1])); root.append(info); }
@@ -386,7 +399,8 @@ function render() {
     const col = el("div", `fam-col t${d}`);
     col.append(el("h4", "", nazwa(d)));
     const ul = el("ul");
-    gracze.filter(g => g.druzyna === d).forEach(g => ul.append(el("li", g.uid === uid ? "me" : "", g.imie)));
+    gracze.filter(g => g.druzyna === d).sort((a, b) => a.imie.localeCompare(b.imie, "pl") || a.uid.localeCompare(b.uid))
+      .forEach(g => ul.append(el("li", [g.uid === uid ? "me" : "", g.uid === stan.ktoUid && ODPOWIADANIE.includes(stan.etap) ? "now" : ""].join(" ").trim(), g.imie)));
     if (!ul.children.length) ul.append(el("li", "empty", "nikogo"));
     col.append(ul);
     if (!me && stan.faza !== "koniec") col.append(btn("Dołącz", "gold", () => dolacz(d)));
@@ -440,7 +454,8 @@ function hostPanel() {
     box.append(el("h4", "", "Poprawki"));
     const pz = btn("Uznaj jako pudło ✕", "red", H.pudlo); pz.disabled = !odp;
     const cb = btn("Cofnij błąd", "", H.cofnijBlad); cb.disabled = !(stan.bledy > 0);
-    row(pz, cb, btn("Ponów zgłoszenia", "", H.ponowBuzz));
+    const pm = btn("Pomiń osobę (bez błędu)", "", H.pomin); pm.disabled = !odp || stan.etap === "pojedynek1";
+    row(pz, cb, pm, btn("Ponów zgłoszenia", "", H.ponowBuzz));
     const pa = btn(`Pula → ${stan.druzyny.A}`, "", () => H.przyznaj("A")), pb = btn(`Pula → ${stan.druzyny.B}`, "", () => H.przyznaj("B"));
     pa.disabled = pb.disabled = !!stan.przyznano;
     row(pa, pb);
