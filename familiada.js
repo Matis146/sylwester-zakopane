@@ -224,7 +224,7 @@ function rozstrzygnij(idx, ans, opts = {}) {
   d.decyzja = null;
   d.krok = (s.krok || 0) + 1;
   const wszystkie = Object.keys(odkryte).length >= q.odpowiedzi.length;
-  const przyznaj = team => { d["wynik." + team] = (s.wynik?.[team] || 0) + pula; d.przyznano = team; d.etap = "po"; d.kto = ""; d.ktoUid = ""; Object.assign(d, reszta(q, odkryte)); };
+  const przyznaj = team => { d["wynik." + team] = (s.wynik?.[team] || 0) + pula; d.przyznano = team; d.etap = "po"; d.kto = ""; d.ktoUid = ""; };
   const krzyzyk = ile => { d.blysk = { typ: "x", n: Date.now(), ile }; };
 
   if (s.etap === "pojedynek1") {
@@ -290,7 +290,10 @@ const H = {
   },
   // Pomija osobę, która nie odpowiada (bez błędu) – ruch ma następna z drużyny.
   pomin: () => { if (ODPOWIADANIE.includes(stan.etap) && stan.etap !== "pojedynek1") { handled = `${stan.runda}-${stan.krok || 0}`; upd(nastepny(stan.kto, { krok: (stan.krok || 0) + 1 })); } },
-  przyznaj: d => { if (!stan.przyznano) upd({ ["wynik." + d]: (stan.wynik?.[d] || 0) + (stan.pula || 0), przyznano: d, etap: "po", kto: "", ...reszta(pyt(), stan.odkryte || {}) }); },
+  przyznaj: d => { if (!stan.przyznano) upd({ ["wynik." + d]: (stan.wynik?.[d] || 0) + (stan.pula || 0), przyznano: d, etap: "po", kto: "" }); },
+  // Odsłanianie pozostałych odpowiedzi po rundzie: od najniżej punktowanej, jak w TV (bez punktów).
+  nastepna: () => { const q = pyt(); if (!q) return; const i = q.odpowiedzi.map((_, k) => k).reverse().find(k => !stan.odkryte?.[k]); if (i !== undefined) odkryjRecznie(i); },
+  wszystkie: () => { const q = pyt(); if (q) upd(reszta(q, stan.odkryte || {})); },
   ponowBuzz: () => upd({ etap: "buzz", proba: (stan.proba || 0) + 1, kto: "", ktoUid: "", ktoImie: "", p1: null }),
   czas: s => upd({ czas: s }),
   nazwy: () => upd({ druzyny: { A: $("fh-nA").value.trim().slice(0, 30) || "Drużyna A", B: $("fh-nB").value.trim().slice(0, 30) || "Drużyna B" } }),
@@ -380,7 +383,7 @@ function render() {
       pojedynek2: ["Szansa dla rywali", `Odpowiada ${stan.ktoImie || kto} (${kto}) – trzeba trafić wyżej punktowaną odpowiedź, żeby przejąć pytanie.`],
       gra: [`Gra drużyna ${kto}`, `Teraz odpowiada ${stan.ktoImie || kto} · błędy: ${stan.bledy || 0}/3`],
       kradziez: ["Kradzież!", `${kto} ma jedną szansę na całą pulę (${stan.pula || 0} pkt) – odpowiada ${stan.ktoImie || kto}.`],
-      po: ["Koniec rundy", `Pula trafiła do: ${nazwa(stan.przyznano)}. Czekamy na kolejne pytanie.`],
+      po: ["Koniec rundy", Object.keys(stan.odkryte || {}).length < stan.sloty ? `Pula trafiła do: ${nazwa(stan.przyznano)}. Prowadzący odsłania pozostałe odpowiedzi…` : `Pula trafiła do: ${nazwa(stan.przyznano)}. Czekamy na kolejne pytanie.`],
     }[stan.etap];
     if (tekst) { info.append(el("small", "", tekst[0]), el("span", "", tekst[1])); root.append(info); }
 
@@ -460,7 +463,14 @@ function hostPanel() {
   const q = pyt();
   if (q && stan.pytanie) {
     const odp = ODPOWIADANIE.includes(stan.etap);
-    box.append(el("h4", "", odp ? "Odpowiedzi – kliknij, żeby uznać bieżącą odpowiedź" : "Odpowiedzi"));
+    const zostalo = q.odpowiedzi.length - Object.keys(stan.odkryte || {}).length;
+    if (stan.etap === "po" && zostalo > 0) {
+      const od = el("div", "fh-decide");
+      od.append(el("p", "kicker", `Odsłoń pozostałe odpowiedzi (${zostalo})`), el("p", "fam-note", "Klikaj powoli – każda odwraca się na tablicy u wszystkich. Punkty już nie wchodzą."));
+      const r = el("div", "fh-row"); r.append(btn("Odsłoń następną", "gold", H.nastepna), btn("Odsłoń wszystkie naraz", "", H.wszystkie));
+      od.append(r); box.append(od);
+    }
+    box.append(el("h4", "", odp ? "Odpowiedzi – kliknij, żeby uznać bieżącą odpowiedź" : stan.etap === "po" ? "Odpowiedzi – kliknij, żeby odsłonić wybraną" : "Odpowiedzi"));
     const list = el("div", "fh-answers");
     q.odpowiedzi.forEach((a, i) => {
       const b = btn(`${i + 1}. ${a.t} · ${a.p}`, stan.odkryte?.[i] ? "done" : "", () => H.uznaj(i));
